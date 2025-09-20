@@ -5,99 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Animación Amor y Flor</title>
 <style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        background: linear-gradient(to top, #0b0c3f, #3a4cae);
-        font-family: 'Segoe UI', sans-serif;
-        color: #FFD700;
-        text-align: center;
-    }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(to top, #0b0c3f, #3a4cae);
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    color: #FFD700;
+  }
 
-    #startBtn {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #FFD700;
-        color: #000;
-        padding: 20px 40px;
-        font-size: 1.5rem;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        box-shadow: 0 0 20px #FFD700;
-        z-index: 10;
-    }
+  #startBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #FFD700;
+    color: #000;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 0 20px #FFD700;
+    z-index: 10;
+  }
 
-    .text {
-        position: absolute;
-        width: 80%;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 2rem;
-        opacity: 0;
-        color: #FFD700;
-        text-shadow: 2px 2px 5px #000;
-        transition: opacity 1s, transform 1s;
-    }
+  .text {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    opacity: 0;
+    color: #FFD700;
+    text-shadow: 2px 2px 5px #000;
+    transition: opacity 1s;
+  }
 
-    #centralFlower {
-        position: absolute;
-        bottom: 10%;
-        left: 50%;
-        transform: translateX(-50%) scale(0.1);
-        width: 80px;
-        height: 80px;
-        background: url('https://i.ibb.co/5R8mL0q/flower.png') no-repeat center/contain;
-        z-index: 5;
-    }
+  /* Flor central (sin imagen) */
+  #centralFlower {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at center, yellow 40%, orange 80%);
+    border-radius: 50%;
+    transform: translateX(-50%) scale(0.1);
+    z-index: 5;
+  }
 
-    .turtle {
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        background: url('https://i.ibb.co/z5d1tQh/turtle.png') no-repeat center/contain;
-        bottom: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        opacity: 0;
-        z-index: 7;
-    }
+  /* Tortuga como círculo verde */
+  .turtle {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: green;
+    border-radius: 50%;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    z-index: 7;
+  }
 
-    .moon {
-        position: absolute;
-        width: 100px;
-        height: 100px;
-        top: 10%;
-        right: 10%;
-        background: url('https://i.ibb.co/9WZmFj2/moon.png') no-repeat center/contain;
-        opacity: 0;
-        z-index: 6;
-    }
+  /* Luna como círculo gris */
+  .moon {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 10%;
+    right: 10%;
+    background: radial-gradient(circle at center, #eee 40%, #aaa 100%);
+    border-radius: 50%;
+    opacity: 0;
+    z-index: 6;
+  }
 
-    .flowers {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        pointer-events: none;
-        z-index: 1;
-    }
+  /* Flores pequeñas animadas */
+  .flowers {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
 
-    .flower {
-        position: absolute;
-        bottom: 0;
-        width: 40px;
-        height: 40px;
-        background: url('https://i.ibb.co/5R8mL0q/flower.png') no-repeat center/contain;
-        animation: rise 5s linear infinite;
-    }
+  .flower {
+    position: absolute;
+    bottom: 0;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at center, pink 40%, red 80%);
+    border-radius: 50%;
+    animation: rise 5s linear infinite;
+  }
 
-    @keyframes rise {
-        0% { transform: translateY(0) scale(0.5); opacity: 0; }
-        50% { opacity: 1; }
-        100% { transform: translateY(-400px) scale(1); opacity: 1; }
-    }
+  @keyframes rise {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-400px) scale(1); opacity: 1; }
+  }
+
 </style>
 </head>
 <body>
@@ -105,13 +114,13 @@
 <button id="startBtn">Presiona aquí 🌼</button>
 
 <div id="texts">
-    <div class="text" id="text1" style="top:20%;">Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza</div>
-    <div class="text" id="text2" style="top:20%;">En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección</div>
-    <div class="text" id="text3" style="top:20%;">“Si hago cosas no es para que me quieras, sino para que veas que te quiero” — Mario Bennedetti</div>
-    <div class="text" id="text4" style="top:20%;">Si no es eterno, que sea inolvidable</div>
-    <div class="text" id="text5" style="top:20%;">Y fin colorado, este amor ha comenzado</div>
-    <div class="text" id="text6" style="top:20%;">¡Te amo de aquí a la luna, a pasitos de tortuga!</div>
-    <div class="text" id="finalText" style="top:10%; font-size:2rem;">Att: Bubu Para: Nimosauira<br>Nayeli y Byron Forever</div>
+  <div class="text" id="text1">Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza</div>
+  <div class="text" id="text2">En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección</div>
+  <div class="text" id="text3">“Si hago cosas no es para que me quieras, sino para que veas que te quiero” — Mario Bennedetti</div>
+  <div class="text" id="text4">Si no es eterno, que sea inolvidable</div>
+  <div class="text" id="text5">Y fin colorado, este amor ha comenzado</div>
+  <div class="text" id="text6">¡Te amo de aquí a la luna, a pasitos de tortuga!</div>
+  <div class="text" id="finalText" style="top:10%; font-size:2rem;">Att: Bubu Para: Nimosauira<br>Nayeli y Byron Forever</div>
 </div>
 
 <div id="centralFlower"></div>
@@ -124,12 +133,12 @@
 <script>
 const startBtn = document.getElementById('startBtn');
 const texts = [
-    document.getElementById('text1'),
-    document.getElementById('text2'),
-    document.getElementById('text3'),
-    document.getElementById('text4'),
-    document.getElementById('text5'),
-    document.getElementById('text6')
+  document.getElementById('text1'),
+  document.getElementById('text2'),
+  document.getElementById('text3'),
+  document.getElementById('text4'),
+  document.getElementById('text5'),
+  document.getElementById('text6')
 ];
 const finalText = document.getElementById('finalText');
 const centralFlower = document.getElementById('centralFlower');
@@ -138,83 +147,92 @@ const moon = document.getElementById('moon');
 const flowersDiv = document.getElementById('flowers');
 const bgMusic = document.getElementById('bgMusic');
 
-function createFlowers(count=20){
-    for(let i=0;i<count;i++){
-        let f = document.createElement('div');
-        f.className = 'flower';
-        f.style.left = Math.random()*100+'%';
-        f.style.animationDuration = 4 + Math.random()*3 + 's';
-        flowersDiv.appendChild(f);
-    }
+function createFlowers(count=30){
+  for(let i=0;i<count;i++){
+    let f = document.createElement('div');
+    f.className = 'flower';
+    f.style.left = Math.random()*100+'%';
+    f.style.animationDuration = 4 + Math.random()*3 + 's';
+    flowersDiv.appendChild(f);
+  }
 }
 
-function growCentralFlower(duration=90000){ // 90s = 1:30 min
-    let start = null;
-    function animate(time){
-        if(!start) start = time;
-        let progress = (time - start)/duration;
-        if(progress > 1) progress = 1;
-        centralFlower.style.transform = `translateX(-50%) scale(${0.1 + 0.9*progress})`;
-        if(progress < 1) requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
+// Animar la flor central creciendo a lo largo de toda la animación
+function growCentralFlower(duration=90000){
+  let start = null;
+  function animate(time){
+    if(!start) start = time;
+    let progress = (time - start)/duration;
+    if(progress > 1) progress = 1;
+    centralFlower.style.transform = `translateX(-50%) scale(${0.1 + 0.9*progress})`;
+    if(progress < 1) requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
 }
 
+// Mostrar los textos uno a uno
 function showTexts(){
-    let startTime = 0;
-    texts.forEach((txt, idx)=>{
-        setTimeout(()=>{
-            txt.style.opacity = 1;
-            txt.style.transform = 'translateX(-50%) translateY(-50px)';
-        }, startTime);
+  let delay = 0;
+  texts.forEach((txt, idx)=>{
+    setTimeout(()=>{
+      txt.style.opacity = 1;
+      txt.style.transform = 'translateX(-50%) translateY(-50px)';
+    }, delay);
 
-        setTimeout(()=>{
-            txt.style.opacity = 0;
-            txt.style.transform = 'translateX(-50%) translateY(0)';
-        }, startTime + 10000);
+    setTimeout(()=>{
+      txt.style.opacity = 0;
+      txt.style.transform = 'translateX(-50%) translateY(0)';
+    }, delay + 10000);
 
-        startTime += 5000; // siguiente texto aparece 5s después
+    delay += 10000;
 
-        if(idx === 5){ // sexto texto, tortuga y luna
-            setTimeout(()=>{
-                moon.style.opacity = 1;
-                turtle.style.opacity = 1;
-                moveTurtleToMoon();
-            }, startTime);
-            setTimeout(()=>{
-                finalText.style.opacity = 1;
-            }, startTime + 7000);
-        }
-    });
+    if(idx === 5){ // sexto texto
+      setTimeout(()=>{
+        moon.style.opacity = 1;
+        turtle.style.opacity = 1;
+        moveTurtleCurved();
+      }, delay);
+      setTimeout(()=>{
+        finalText.style.opacity = 1;
+      }, delay + 7000);
+    }
+  });
 }
 
-function moveTurtleToMoon(){
-    let startLeft = window.innerWidth/2 - 30; // tortuga centro
-    let endLeft = window.innerWidth - 150; // luna aproximada
-    let startTop = window.innerHeight*0.9 - 30;
-    let endTop = window.innerHeight*0.1;
-    let duration = 7000; // 7 segundos
+// Animación de la tortuga en curva hacia la luna
+function moveTurtleCurved(){
+  let duration = 7000;
+  let startTime = null;
 
-    let startTime = null;
-    function animate(time){
-        if(!startTime) startTime = time;
-        let progress = (time - startTime)/duration;
-        if(progress > 1) progress = 1;
-        let currentLeft = startLeft + (endLeft - startLeft)*progress;
-        let currentTop = startTop + (endTop - startTop)*progress;
-        turtle.style.left = currentLeft + 'px';
-        turtle.style.top = currentTop + 'px';
-        if(progress < 1) requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
+  let startX = window.innerWidth/2 - 20;
+  let startY = window.innerHeight*0.1 + window.innerHeight*0.8 - 40;
+  let endX = window.innerWidth - 150;
+  let endY = window.innerHeight*0.1;
+
+  function animate(time){
+    if(!startTime) startTime = time;
+    let progress = (time - startTime)/duration;
+    if(progress > 1) progress = 1;
+
+    // Movimiento en curva usando parábola simple
+    let currentX = startX + (endX - startX)*progress;
+    let currentY = startY - (startY - endY)*progress + 150*Math.sin(progress*Math.PI);
+
+    turtle.style.left = currentX + 'px';
+    turtle.style.top = currentY + 'px';
+
+    if(progress < 1) requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
 }
 
 startBtn.addEventListener('click', ()=>{
-    startBtn.style.display = 'none';
-    bgMusic.play();
-    createFlowers(30);
-    growCentralFlower();
-    showTexts();
+  startBtn.style.display = 'none';
+  bgMusic.play();
+  createFlowers(30);
+  growCentralFlower();
+  showTexts();
 });
 </script>
 </body>
