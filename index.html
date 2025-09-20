@@ -26,6 +26,7 @@
         border-radius: 20px;
         cursor: pointer;
         box-shadow: 0 0 20px #FFD700;
+        z-index: 10;
     }
     .text {
         position: absolute;
@@ -33,7 +34,9 @@
         left: 10%;
         font-size: 1.8rem;
         opacity: 0;
-        transition: opacity 2s, transform 2s;
+        color: #FFD700; /* Cambiado a color visible */
+        text-shadow: 2px 2px 4px #000; /* Para destacar sobre el fondo */
+        transition: opacity 1s, transform 1s;
     }
     .flowers {
         position: absolute;
@@ -97,11 +100,10 @@ const texts = [
 const finalText = document.getElementById('finalText');
 const flowersDiv = document.getElementById('flowers');
 const turtle = document.getElementById('turtle');
-const moon = document.getElementById('moon');
 const bgMusic = document.getElementById('bgMusic');
 
-function createFlowers() {
-    for(let i=0;i<20;i++){
+function createFlowers(count=20) {
+    for(let i=0;i<count;i++){
         let f = document.createElement('div');
         f.className = 'flower';
         f.style.left = Math.random() * 100 + '%';
@@ -111,16 +113,26 @@ function createFlowers() {
 }
 
 function showTexts() {
-    let delay = 0;
+    let startTime = 0;
     texts.forEach((txt, idx) => {
-        setTimeout(() => { txt.style.opacity = 1; txt.style.transform = 'translateY(-50px)'; }, delay);
-        delay += 4000;
-        setTimeout(() => { txt.style.opacity = 0; txt.style.transform = 'translateY(0)'; }, delay-500);
-        if(idx === 4){
-            moveTurtle();
+        // Aparece
+        setTimeout(() => { 
+            txt.style.opacity = 1; 
+            txt.style.transform = 'translateY(-50px)'; 
+        }, startTime);
+        // Desaparece después de 10s
+        setTimeout(() => { 
+            txt.style.opacity = 0; 
+            txt.style.transform = 'translateY(0)'; 
+        }, startTime + 10000);
+
+        startTime += 5000; // El siguiente empieza 5s después del anterior
+        
+        if(idx === 4){ // Mueve la tortuga en el quinto texto
+            setTimeout(()=>{ moveTurtle(); }, startTime);
         }
-        if(idx === 5){
-            setTimeout(()=>{finalText.style.opacity=1;},2000);
+        if(idx === 5){ // Muestra el texto final después del sexto
+            setTimeout(()=>{ finalText.style.opacity=1; }, startTime + 2000);
         }
     });
 }
@@ -137,7 +149,7 @@ function moveTurtle(){
 startBtn.addEventListener('click', ()=>{
     startBtn.style.display = 'none';
     bgMusic.play();
-    createFlowers();
+    createFlowers(30); // Se crean 30 flores
     showTexts();
 });
 </script>
