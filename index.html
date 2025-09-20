@@ -3,19 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flor Animada y Explosión</title>
+<title>Flor Estrellada</title>
 <style>
-/* ====== FONDO ESTILO PINTURA ====== */
+/* ===== FONDO VAN GOGH ===== */
 body {
   margin: 0;
   overflow: hidden;
-  background: radial-gradient(circle at 30% 30%, #FFD7A3 0%, #FF7F50 30%, #8B0000 60%, #191970 100%);
   font-family: 'Segoe UI', sans-serif;
-  text-align: center;
-  color: #fff;
+  background: linear-gradient(to bottom, #0a1a3c, #1b2b5c);
 }
 
-/* BOTON INICIO */
+/* Remolinos estilo Van Gogh */
+@keyframes swirl {
+  0% { transform: rotate(0deg) translate(0px) rotate(0deg);}
+  100% { transform: rotate(360deg) translate(0px) rotate(-360deg);}
+}
+.swirl {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border: 2px dashed rgba(255,255,255,0.2);
+  border-radius: 50%;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: swirl 60s linear infinite;
+}
+
+/* BOTON */
 #startBtn {
   position: absolute;
   top: 50%;
@@ -42,7 +57,7 @@ body {
   opacity: 0;
   color: #ddd;
   text-shadow: 2px 2px 4px #000;
-  transition: opacity 0.8s, transform 0.8s;
+  transition: opacity 1s, transform 1s;
   font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
@@ -51,37 +66,17 @@ body {
   position: absolute;
   bottom: 10%;
   left: 50%;
-  width: 0px;
-  height: 0px;
+  transform: translateX(-50%);
   z-index: 3;
 }
-
 .dot {
   position: absolute;
   border-radius: 50%;
   opacity: 0;
 }
-
-/* RAÍCES */
-.dot.root {
-  background: #5a3e1b;
-  width: 8px;
-  height: 8px;
-}
-
-/* PÉTALOS VERDES */
-.dot.petal {
-  background: radial-gradient(circle at center, #0a6d0a 40%, green 100%);
-  width: 15px;
-  height: 15px;
-}
-
-/* CENTRO AMARILLO */
-.dot.center {
-  background: yellow;
-  width: 25px;
-  height: 25px;
-}
+.dot.root { background: #5a3e1b; width: 6px; height: 6px; }
+.dot.petal { background: green; width: 15px; height: 15px; }
+.dot.center { background: yellow; width: 25px; height: 25px; }
 
 /* TORTUGA */
 .turtle {
@@ -92,6 +87,16 @@ body {
   border-radius: 50%;
   opacity: 0;
   z-index: 5;
+}
+/* CORAZONES */
+.heart {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: red;
+  transform: rotate(-45deg);
+  clip-path: polygon(50% 0%, 100% 35%, 75% 100%, 50% 80%, 25% 100%, 0% 35%);
+  opacity: 0.8;
 }
 
 /* LUNA */
@@ -107,19 +112,17 @@ body {
   z-index: 4;
 }
 
-/* LABELS */
-.label {
-  position: absolute;
-  color: #fff;
-  font-size: 1rem;
-  text-shadow: 1px 1px 3px #000;
-  opacity: 0;
+/* EXPLOSIÓN FLOR */
+@keyframes explode {
+  0% {transform: scale(1) rotate(0deg); opacity:1;}
+  100% {transform: scale(3) rotate(720deg); opacity:0;}
 }
 
-/* EXPLOSIÓN */
-@keyframes explode {
-  0% {transform: scale(0.5) rotate(0deg); opacity:1;}
-  100% {transform: scale(3) rotate(720deg); opacity:0;}
+#finalText {
+  top:50%;
+  font-size:3rem;
+  color:white;
+  transform: translate(-50%, -50%);
 }
 
 </style>
@@ -128,6 +131,7 @@ body {
 
 <button id="startBtn">Presiona aquí 🌼</button>
 
+<div class="swirl"></div>
 <div id="texts">
   <div class="text" id="text1">Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza</div>
   <div class="text" id="text2">En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección</div>
@@ -135,14 +139,12 @@ body {
   <div class="text" id="text4">Si no es eterno, que sea inolvidable</div>
   <div class="text" id="text5">Y fin colorado, este amor ha comenzado</div>
   <div class="text" id="text6">¡Te amo de aquí a la luna, a pasitos de tortuga!</div>
-  <div class="text" id="finalText" style="top:50%; font-size:3rem; color:white;">FIN. NO SERÁS ESPECTADORA</div>
+  <div class="text" id="finalText">FIN. NO SERÁS ESPECTADORA</div>
 </div>
 
 <div id="flowerContainer"></div>
 <div class="turtle" id="turtle"></div>
 <div class="moon" id="moon"></div>
-<div class="label" id="turtleLabel">Tortuga</div>
-<div class="label" id="moonLabel">Luna</div>
 
 <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3"></audio>
 
@@ -160,93 +162,83 @@ const finalText = document.getElementById('finalText');
 const flowerContainer = document.getElementById('flowerContainer');
 const turtle = document.getElementById('turtle');
 const moon = document.getElementById('moon');
-const turtleLabel = document.getElementById('turtleLabel');
-const moonLabel = document.getElementById('moonLabel');
 const bgMusic = document.getElementById('bgMusic');
 
-/* CREAR FLORES */
+/* CREAR FLOR */
 function createFlower(){
-  // RAÍCES
-  for(let i=0;i<20;i++){
-    let dot = document.createElement('div');
-    dot.className = 'dot root';
-    dot.style.left = (Math.random()*60 - 30) + 'px';
-    dot.style.bottom = '0px';
+  let totalRoots=40;
+  for(let i=0;i<totalRoots;i++){
+    let dot=document.createElement('div');
+    dot.className='dot root';
+    dot.style.left=(Math.random()*100-50)+'px';
+    dot.style.bottom='0px';
     flowerContainer.appendChild(dot);
     setTimeout(()=>{
-      dot.style.transition='all 2s ease';
-      dot.style.bottom = (100 + Math.random()*50)+'px';
-      dot.style.opacity = 1;
-    }, i*200);
+      dot.style.transition='all 3s ease';
+      dot.style.bottom=(100+Math.random()*80)+'px';
+      dot.style.opacity=1;
+    }, i*100);
   }
 
-  // CENTRO
-  let center = document.createElement('div');
+  // Centro amarillo
+  let center=document.createElement('div');
   center.className='dot center';
   center.style.left='0px';
   center.style.bottom='120px';
   flowerContainer.appendChild(center);
+  setTimeout(()=>{center.style.transition='all 3s ease'; center.style.transform='scale(1)'; center.style.opacity=1;}, 4000);
 
-  setTimeout(()=>{
-    center.style.transition='all 3s ease';
-    center.style.transform='scale(1)';
-    center.style.opacity=1;
-  }, 4000);
-
-  // PÉTALOS
-  for(let i=0;i<6;i++){
-    let petal = document.createElement('div');
+  // Petalos verdes
+  for(let i=0;i<8;i++){
+    let petal=document.createElement('div');
     petal.className='dot petal';
-    let angle = i*Math.PI/3;
-    petal.style.left = Math.cos(angle)*40+'px';
-    petal.style.bottom = 120 + Math.sin(angle)*40+'px';
+    let angle=i*Math.PI/4;
+    petal.style.left=Math.cos(angle)*60+'px';
+    petal.style.bottom=120+Math.sin(angle)*60+'px';
     flowerContainer.appendChild(petal);
-    setTimeout(()=>{petal.style.transition='all 2s ease'; petal.style.opacity=1;}, 5000+i*200);
+    setTimeout(()=>{petal.style.transition='all 3s ease'; petal.style.opacity=1;},5000+i*150);
   }
 }
 
 /* TEXTOS */
 function showTexts(){
-  let delay = 0;
-  texts.forEach((txt, idx)=>{
+  let delay=0;
+  texts.forEach((txt,idx)=>{
     setTimeout(()=>{txt.style.opacity=1; txt.style.transform='translateX(-50%) translateY(-50px)';}, delay);
-    setTimeout(()=>{txt.style.opacity=0; txt.style.transform='translateX(-50%) translateY(0)';}, delay+8000);
-    delay += 8000;
-
-    if(idx===5){ // Sexto texto, tortuga y luna
-      setTimeout(()=>{
-        moon.style.opacity=1;
-        turtle.style.opacity=1;
-        turtleLabel.style.opacity=1;
-        moonLabel.style.opacity=1;
-        moveTurtle();
-      }, delay);
-      setTimeout(()=>{
-        finalExplosion();
-      }, delay+5000);
+    setTimeout(()=>{txt.style.opacity=0; txt.style.transform='translateX(-50%) translateY(0)';}, delay+7000);
+    delay+=7000;
+    if(idx===5){ // Sexto texto
+      setTimeout(()=>{moon.style.opacity=1; turtle.style.opacity=1; leaveHeartTrail();}, delay);
+      setTimeout(()=>{finalExplosion();}, delay+5000);
     }
   });
 }
 
-/* TORTUGA */
-function moveTurtle(){
-  let duration = 5000;
-  let start = null;
-  let startX = window.innerWidth/2;
-  let startY = window.innerHeight-50;
-  let endX = window.innerWidth - 150;
-  let endY = 50;
-
+/* TORTUGA CON RASTRO DE CORAZONES */
+function leaveHeartTrail(){
+  let duration=5000;
+  let start=null;
+  let hearts=[];
+  for(let i=0;i<50;i++){
+    let heart=document.createElement('div');
+    heart.className='heart';
+    document.body.appendChild(heart);
+    hearts.push(heart);
+  }
   function animate(time){
     if(!start) start=time;
-    let progress = (time-start)/duration;
+    let progress=(time-start)/duration;
     if(progress>1) progress=1;
-    let x = startX + (endX-startX)*progress;
-    let y = startY - (startY-endY)*progress + 50*Math.sin(progress*Math.PI);
-    turtle.style.left = x+'px';
-    turtle.style.top = y+'px';
-    turtleLabel.style.left = (x+10)+'px';
-    turtleLabel.style.top = (y-10)+'px';
+    let x=window.innerWidth/2 + (window.innerWidth-200)*progress;
+    let y=window.innerHeight-50 - (window.innerHeight-100)*progress + 50*Math.sin(progress*Math.PI*2);
+    turtle.style.left=x+'px';
+    turtle.style.top=y+'px';
+    hearts.forEach((h,i)=>{
+      h.style.left=(x-Math.random()*20)+'px';
+      h.style.top=(y-Math.random()*20)+'px';
+      h.style.background='hsl(' + Math.random()*360 + ',80%,60%)';
+      h.style.opacity=Math.random();
+    });
     if(progress<1) requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
@@ -254,11 +246,11 @@ function moveTurtle(){
 
 /* EXPLOSIÓN FINAL */
 function finalExplosion(){
-  let dots = document.querySelectorAll('.dot');
+  let dots=document.querySelectorAll('.dot');
   dots.forEach(dot=>{
     dot.style.transition='all 2s ease';
-    let angle = Math.random()*2*Math.PI;
-    let distance = 300 + Math.random()*100;
+    let angle=Math.random()*2*Math.PI;
+    let distance=300+Math.random()*100;
     dot.style.transform=`translate(${Math.cos(angle)*distance}px, ${-distance+Math.random()*50}px) scale(2)`;
     dot.style.opacity=0;
   });
@@ -266,12 +258,13 @@ function finalExplosion(){
   finalText.style.color='hsl(' + Math.random()*360 + ',80%,60%)';
 }
 
-startBtn.addEventListener('click', ()=>{
+startBtn.addEventListener('click',()=>{
   startBtn.style.display='none';
   bgMusic.play();
   createFlower();
   showTexts();
 });
 </script>
+
 </body>
 </html>
