@@ -3,130 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flor Animada y Amor</title>
+<title>Flor Animada y Explosión</title>
 <style>
-  /* ====== FONDO ====== */
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: linear-gradient(to top, #1a1f3a, #3a4cae);
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    color: #ccc;
-  }
+/* ====== FONDO ESTILO PINTURA ====== */
+body {
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 30%, #FFD7A3 0%, #FF7F50 30%, #8B0000 60%, #191970 100%);
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  color: #fff;
+}
 
-  #startBtn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #FFD700;
-    color: #000;
-    padding: 20px 40px;
-    font-size: 1.5rem;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 0 20px #FFD700;
-    z-index: 10;
-  }
+/* BOTON INICIO */
+#startBtn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #FFD700;
+  color: #000;
+  padding: 20px 40px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 20px #FFD700;
+  z-index: 10;
+}
 
-  /* ====== TEXTOS ====== */
-  .text {
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2rem;
-    opacity: 0;
-    color: #ddd;
-    text-shadow: 2px 2px 4px #000;
-    transition: opacity 0.8s, transform 0.8s;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-  }
+/* TEXTOS */
+.text {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  opacity: 0;
+  color: #ddd;
+  text-shadow: 2px 2px 4px #000;
+  transition: opacity 0.8s, transform 0.8s;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
 
-  /* ====== FLORES ====== */
-  #flowerStem {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    width: 10px;
-    height: 0px;
-    background: #5a3e1b;
-    transform: translateX(-50%);
-    z-index: 2;
-  }
+/* FLOR */
+#flowerContainer {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  width: 0px;
+  height: 0px;
+  z-index: 3;
+}
 
-  /* Centro flor amarillo */
-  #flowerCenter {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    background: yellow;
-    border-radius: 50%;
-    transform: translateX(-50%) scale(0);
-    z-index: 3;
-  }
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+}
 
-  /* Pétalos verdes */
-  .petal {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle at center, green 40%, #0a6d0a 100%);
-    border-radius: 50%;
-    opacity: 0;
-    z-index: 2;
-  }
+/* RAÍCES */
+.dot.root {
+  background: #5a3e1b;
+  width: 8px;
+  height: 8px;
+}
 
-  /* Tortuga y luna */
-  .turtle {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: green;
-    border-radius: 50%;
-    opacity: 0;
-    z-index: 5;
-  }
-  .moon {
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    background: radial-gradient(circle at center, #eee 40%, #aaa 100%);
-    border-radius: 50%;
-    top: 15%;
-    right: 10%;
-    opacity: 0;
-    z-index: 4;
-  }
+/* PÉTALOS VERDES */
+.dot.petal {
+  background: radial-gradient(circle at center, #0a6d0a 40%, green 100%);
+  width: 15px;
+  height: 15px;
+}
 
-  .label {
-    position: absolute;
-    color: #fff;
-    font-size: 1rem;
-    text-shadow: 1px 1px 3px #000;
-    opacity: 0;
-  }
+/* CENTRO AMARILLO */
+.dot.center {
+  background: yellow;
+  width: 25px;
+  height: 25px;
+}
 
-  /* Lluvia de colores final */
-  .rainDrop {
-    position: absolute;
-    width: 6px;
-    height: 12px;
-    border-radius: 50%;
-    background: red;
-    opacity: 0;
-    z-index: 6;
-    animation: fall linear infinite;
-  }
+/* TORTUGA */
+.turtle {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: green;
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 5;
+}
 
-  @keyframes fall {
-    0% { transform: translateY(-20px); opacity: 1;}
-    100% { transform: translateY(100vh); opacity: 0;}
-  }
+/* LUNA */
+.moon {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle at center, #eee 40%, #aaa 100%);
+  border-radius: 50%;
+  top: 15%;
+  right: 10%;
+  opacity: 0;
+  z-index: 4;
+}
+
+/* LABELS */
+.label {
+  position: absolute;
+  color: #fff;
+  font-size: 1rem;
+  text-shadow: 1px 1px 3px #000;
+  opacity: 0;
+}
+
+/* EXPLOSIÓN */
+@keyframes explode {
+  0% {transform: scale(0.5) rotate(0deg); opacity:1;}
+  100% {transform: scale(3) rotate(720deg); opacity:0;}
+}
 
 </style>
 </head>
@@ -141,12 +135,10 @@
   <div class="text" id="text4">Si no es eterno, que sea inolvidable</div>
   <div class="text" id="text5">Y fin colorado, este amor ha comenzado</div>
   <div class="text" id="text6">¡Te amo de aquí a la luna, a pasitos de tortuga!</div>
-  <div class="text" id="finalText" style="top:10%; font-size:2rem;">FIN NO SERÁS ESPECTADOR</div>
+  <div class="text" id="finalText" style="top:50%; font-size:3rem; color:white;">FIN. NO SERÁS ESPECTADORA</div>
 </div>
 
-<div id="flowerStem"></div>
-<div id="flowerCenter"></div>
-<div id="flowersContainer"></div>
+<div id="flowerContainer"></div>
 <div class="turtle" id="turtle"></div>
 <div class="moon" id="moon"></div>
 <div class="label" id="turtleLabel">Tortuga</div>
@@ -165,144 +157,119 @@ const texts = [
   document.getElementById('text6')
 ];
 const finalText = document.getElementById('finalText');
-const flowerStem = document.getElementById('flowerStem');
-const flowerCenter = document.getElementById('flowerCenter');
+const flowerContainer = document.getElementById('flowerContainer');
 const turtle = document.getElementById('turtle');
 const moon = document.getElementById('moon');
 const turtleLabel = document.getElementById('turtleLabel');
 const moonLabel = document.getElementById('moonLabel');
-const flowersContainer = document.getElementById('flowersContainer');
 const bgMusic = document.getElementById('bgMusic');
 
-function createStemAndLeaves(){
-  // Elevación de puntos cafés (simula tierra y raíces)
-  let rootCount = 15;
-  for(let i=0;i<rootCount;i++){
+/* CREAR FLORES */
+function createFlower(){
+  // RAÍCES
+  for(let i=0;i<20;i++){
     let dot = document.createElement('div');
-    dot.className = 'petal';
-    dot.style.background = '#5a3e1b';
-    dot.style.bottom = '10%';
-    dot.style.left = (50 + (Math.random()*60-30)) + '%';
-    dot.style.width = '8px';
-    dot.style.height = '8px';
-    flowersContainer.appendChild(dot);
-    let upTime = 1000 + Math.random()*2000;
-    setTimeout(()=>{ dot.style.bottom = '40%'; dot.style.opacity = 1; }, upTime);
+    dot.className = 'dot root';
+    dot.style.left = (Math.random()*60 - 30) + 'px';
+    dot.style.bottom = '0px';
+    flowerContainer.appendChild(dot);
+    setTimeout(()=>{
+      dot.style.transition='all 2s ease';
+      dot.style.bottom = (100 + Math.random()*50)+'px';
+      dot.style.opacity = 1;
+    }, i*200);
   }
-}
 
-function growStemAndFlower(){
-  // Crecimiento tallo
-  let height = 0;
-  let stemInterval = setInterval(()=>{
-    if(height < 150){
-      height += 2;
-      flowerStem.style.height = height + 'px';
-    } else clearInterval(stemInterval);
-  }, 50);
+  // CENTRO
+  let center = document.createElement('div');
+  center.className='dot center';
+  center.style.left='0px';
+  center.style.bottom='120px';
+  flowerContainer.appendChild(center);
 
-  // Crecimiento centro amarillo
-  let scale = 0;
-  let flowerInterval = setInterval(()=>{
-    if(scale < 1){
-      scale += 0.02;
-      flowerCenter.style.transform = `translateX(-50%) scale(${scale})`;
-    } else clearInterval(flowerInterval);
-  },50);
+  setTimeout(()=>{
+    center.style.transition='all 3s ease';
+    center.style.transform='scale(1)';
+    center.style.opacity=1;
+  }, 4000);
 
-  // Pétalos verdes
-  let petals = [];
-  let petalCount = 6;
-  for(let i=0;i<petalCount;i++){
-    let p = document.createElement('div');
-    p.className = 'petal';
+  // PÉTALOS
+  for(let i=0;i<6;i++){
+    let petal = document.createElement('div');
+    petal.className='dot petal';
     let angle = i*Math.PI/3;
-    p.style.left = 50 + Math.cos(angle)*40 + '%';
-    p.style.bottom = 25 + Math.sin(angle)*30 + '%';
-    flowersContainer.appendChild(p);
-    petals.push(p);
+    petal.style.left = Math.cos(angle)*40+'px';
+    petal.style.bottom = 120 + Math.sin(angle)*40+'px';
+    flowerContainer.appendChild(petal);
+    setTimeout(()=>{petal.style.transition='all 2s ease'; petal.style.opacity=1;}, 5000+i*200);
   }
-  petals.forEach((p,i)=>{
-    setTimeout(()=>{p.style.opacity=1;}, 2000+i*300);
-  });
 }
 
+/* TEXTOS */
 function showTexts(){
   let delay = 0;
   texts.forEach((txt, idx)=>{
-    setTimeout(()=>{
-      txt.style.opacity = 1;
-      txt.style.transform = 'translateX(-50%) translateY(-50px)';
-    }, delay);
-    setTimeout(()=>{
-      txt.style.opacity = 0;
-      txt.style.transform = 'translateX(-50%) translateY(0)';
-    }, delay + 9000);
-    delay += 9000;
+    setTimeout(()=>{txt.style.opacity=1; txt.style.transform='translateX(-50%) translateY(-50px)';}, delay);
+    setTimeout(()=>{txt.style.opacity=0; txt.style.transform='translateX(-50%) translateY(0)';}, delay+8000);
+    delay += 8000;
 
-    if(idx===5){ // sexto texto
+    if(idx===5){ // Sexto texto, tortuga y luna
       setTimeout(()=>{
         moon.style.opacity=1;
         turtle.style.opacity=1;
         turtleLabel.style.opacity=1;
         moonLabel.style.opacity=1;
-        turtleLabel.style.left = '50%';
-        turtleLabel.style.top = '60%';
-        moonLabel.style.right = '10%';
-        moonLabel.style.top = '10%';
-        moveTurtleCurved();
+        moveTurtle();
       }, delay);
       setTimeout(()=>{
-        finalText.style.opacity=1;
-        rainColors();
-      }, delay+7000);
+        finalExplosion();
+      }, delay+5000);
     }
   });
 }
 
-function moveTurtleCurved(){
-  let duration = 7000;
-  let startTime = null;
-  let startX = window.innerWidth/2 - 20;
-  let startY = window.innerHeight - 100;
+/* TORTUGA */
+function moveTurtle(){
+  let duration = 5000;
+  let start = null;
+  let startX = window.innerWidth/2;
+  let startY = window.innerHeight-50;
   let endX = window.innerWidth - 150;
   let endY = 50;
 
   function animate(time){
-    if(!startTime) startTime = time;
-    let progress = (time - startTime)/duration;
-    if(progress > 1) progress = 1;
-
-    let currentX = startX + (endX-startX)*progress;
-    let currentY = startY - (startY-endY)*progress + 100*Math.sin(progress*Math.PI);
-
-    turtle.style.left = currentX + 'px';
-    turtle.style.top = currentY + 'px';
-    turtleLabel.style.left = (currentX+10)+'px';
-    turtleLabel.style.top = (currentY-10)+'px';
-
+    if(!start) start=time;
+    let progress = (time-start)/duration;
+    if(progress>1) progress=1;
+    let x = startX + (endX-startX)*progress;
+    let y = startY - (startY-endY)*progress + 50*Math.sin(progress*Math.PI);
+    turtle.style.left = x+'px';
+    turtle.style.top = y+'px';
+    turtleLabel.style.left = (x+10)+'px';
+    turtleLabel.style.top = (y-10)+'px';
     if(progress<1) requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
 }
 
-// Lluvia final de colores
-function rainColors(count=100){
-  for(let i=0;i<count;i++){
-    let drop = document.createElement('div');
-    drop.className = 'rainDrop';
-    drop.style.left = Math.random()*100 + '%';
-    drop.style.background = `hsl(${Math.random()*360},80%,60%)`;
-    drop.style.animationDuration = 1+Math.random()*2+'s';
-    document.body.appendChild(drop);
-  }
+/* EXPLOSIÓN FINAL */
+function finalExplosion(){
+  let dots = document.querySelectorAll('.dot');
+  dots.forEach(dot=>{
+    dot.style.transition='all 2s ease';
+    let angle = Math.random()*2*Math.PI;
+    let distance = 300 + Math.random()*100;
+    dot.style.transform=`translate(${Math.cos(angle)*distance}px, ${-distance+Math.random()*50}px) scale(2)`;
+    dot.style.opacity=0;
+  });
+  finalText.style.opacity=1;
+  finalText.style.color='hsl(' + Math.random()*360 + ',80%,60%)';
 }
 
 startBtn.addEventListener('click', ()=>{
   startBtn.style.display='none';
   bgMusic.play();
-  createStemAndLeaves();
-  growStemAndFlower();
+  createFlower();
   showTexts();
 });
 </script>
