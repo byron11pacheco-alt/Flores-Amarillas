@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Animación Amor y Flor</title>
+<title>Flor Animada y Amor</title>
 <style>
+  /* ====== FONDO ====== */
   body {
     margin: 0;
     overflow: hidden;
-    background: linear-gradient(to top, #0b0c3f, #3a4cae);
+    background: linear-gradient(to top, #1a1f3a, #3a4cae);
     font-family: 'Segoe UI', sans-serif;
     text-align: center;
-    color: #FFD700;
+    color: #ccc;
   }
 
   #startBtn {
@@ -30,81 +31,101 @@
     z-index: 10;
   }
 
+  /* ====== TEXTOS ====== */
   .text {
     position: absolute;
-    top: 20%;
+    top: 15%;
     left: 50%;
     transform: translateX(-50%);
     font-size: 2rem;
     opacity: 0;
-    color: #FFD700;
-    text-shadow: 2px 2px 5px #000;
-    transition: opacity 1s;
+    color: #ddd;
+    text-shadow: 2px 2px 4px #000;
+    transition: opacity 0.8s, transform 0.8s;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
   }
 
-  /* Flor central (sin imagen) */
-  #centralFlower {
+  /* ====== FLORES ====== */
+  #flowerStem {
     position: absolute;
     bottom: 10%;
     left: 50%;
-    width: 80px;
-    height: 80px;
-    background: radial-gradient(circle at center, yellow 40%, orange 80%);
-    border-radius: 50%;
-    transform: translateX(-50%) scale(0.1);
-    z-index: 5;
+    width: 10px;
+    height: 0px;
+    background: #5a3e1b;
+    transform: translateX(-50%);
+    z-index: 2;
   }
 
-  /* Tortuga como círculo verde */
+  /* Centro flor amarillo */
+  #flowerCenter {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: yellow;
+    border-radius: 50%;
+    transform: translateX(-50%) scale(0);
+    z-index: 3;
+  }
+
+  /* Pétalos verdes */
+  .petal {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle at center, green 40%, #0a6d0a 100%);
+    border-radius: 50%;
+    opacity: 0;
+    z-index: 2;
+  }
+
+  /* Tortuga y luna */
   .turtle {
     position: absolute;
     width: 40px;
     height: 40px;
     background: green;
     border-radius: 50%;
-    bottom: 10%;
-    left: 50%;
-    transform: translateX(-50%);
     opacity: 0;
-    z-index: 7;
+    z-index: 5;
   }
-
-  /* Luna como círculo gris */
   .moon {
     position: absolute;
-    width: 100px;
-    height: 100px;
-    top: 10%;
-    right: 10%;
+    width: 80px;
+    height: 80px;
     background: radial-gradient(circle at center, #eee 40%, #aaa 100%);
     border-radius: 50%;
+    top: 15%;
+    right: 10%;
+    opacity: 0;
+    z-index: 4;
+  }
+
+  .label {
+    position: absolute;
+    color: #fff;
+    font-size: 1rem;
+    text-shadow: 1px 1px 3px #000;
+    opacity: 0;
+  }
+
+  /* Lluvia de colores final */
+  .rainDrop {
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    border-radius: 50%;
+    background: red;
     opacity: 0;
     z-index: 6;
+    animation: fall linear infinite;
   }
 
-  /* Flores pequeñas animadas */
-  .flowers {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .flower {
-    position: absolute;
-    bottom: 0;
-    width: 30px;
-    height: 30px;
-    background: radial-gradient(circle at center, pink 40%, red 80%);
-    border-radius: 50%;
-    animation: rise 5s linear infinite;
-  }
-
-  @keyframes rise {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translateY(-400px) scale(1); opacity: 1; }
+  @keyframes fall {
+    0% { transform: translateY(-20px); opacity: 1;}
+    100% { transform: translateY(100vh); opacity: 0;}
   }
 
 </style>
@@ -120,13 +141,16 @@
   <div class="text" id="text4">Si no es eterno, que sea inolvidable</div>
   <div class="text" id="text5">Y fin colorado, este amor ha comenzado</div>
   <div class="text" id="text6">¡Te amo de aquí a la luna, a pasitos de tortuga!</div>
-  <div class="text" id="finalText" style="top:10%; font-size:2rem;">Att: Bubu Para: Nimosauira<br>Nayeli y Byron Forever</div>
+  <div class="text" id="finalText" style="top:10%; font-size:2rem;">FIN NO SERÁS ESPECTADOR</div>
 </div>
 
-<div id="centralFlower"></div>
+<div id="flowerStem"></div>
+<div id="flowerCenter"></div>
+<div id="flowersContainer"></div>
 <div class="turtle" id="turtle"></div>
 <div class="moon" id="moon"></div>
-<div class="flowers" id="flowers"></div>
+<div class="label" id="turtleLabel">Tortuga</div>
+<div class="label" id="moonLabel">Luna</div>
 
 <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3"></audio>
 
@@ -141,36 +165,68 @@ const texts = [
   document.getElementById('text6')
 ];
 const finalText = document.getElementById('finalText');
-const centralFlower = document.getElementById('centralFlower');
+const flowerStem = document.getElementById('flowerStem');
+const flowerCenter = document.getElementById('flowerCenter');
 const turtle = document.getElementById('turtle');
 const moon = document.getElementById('moon');
-const flowersDiv = document.getElementById('flowers');
+const turtleLabel = document.getElementById('turtleLabel');
+const moonLabel = document.getElementById('moonLabel');
+const flowersContainer = document.getElementById('flowersContainer');
 const bgMusic = document.getElementById('bgMusic');
 
-function createFlowers(count=30){
-  for(let i=0;i<count;i++){
-    let f = document.createElement('div');
-    f.className = 'flower';
-    f.style.left = Math.random()*100+'%';
-    f.style.animationDuration = 4 + Math.random()*3 + 's';
-    flowersDiv.appendChild(f);
+function createStemAndLeaves(){
+  // Elevación de puntos cafés (simula tierra y raíces)
+  let rootCount = 15;
+  for(let i=0;i<rootCount;i++){
+    let dot = document.createElement('div');
+    dot.className = 'petal';
+    dot.style.background = '#5a3e1b';
+    dot.style.bottom = '10%';
+    dot.style.left = (50 + (Math.random()*60-30)) + '%';
+    dot.style.width = '8px';
+    dot.style.height = '8px';
+    flowersContainer.appendChild(dot);
+    let upTime = 1000 + Math.random()*2000;
+    setTimeout(()=>{ dot.style.bottom = '40%'; dot.style.opacity = 1; }, upTime);
   }
 }
 
-// Animar la flor central creciendo a lo largo de toda la animación
-function growCentralFlower(duration=90000){
-  let start = null;
-  function animate(time){
-    if(!start) start = time;
-    let progress = (time - start)/duration;
-    if(progress > 1) progress = 1;
-    centralFlower.style.transform = `translateX(-50%) scale(${0.1 + 0.9*progress})`;
-    if(progress < 1) requestAnimationFrame(animate);
+function growStemAndFlower(){
+  // Crecimiento tallo
+  let height = 0;
+  let stemInterval = setInterval(()=>{
+    if(height < 150){
+      height += 2;
+      flowerStem.style.height = height + 'px';
+    } else clearInterval(stemInterval);
+  }, 50);
+
+  // Crecimiento centro amarillo
+  let scale = 0;
+  let flowerInterval = setInterval(()=>{
+    if(scale < 1){
+      scale += 0.02;
+      flowerCenter.style.transform = `translateX(-50%) scale(${scale})`;
+    } else clearInterval(flowerInterval);
+  },50);
+
+  // Pétalos verdes
+  let petals = [];
+  let petalCount = 6;
+  for(let i=0;i<petalCount;i++){
+    let p = document.createElement('div');
+    p.className = 'petal';
+    let angle = i*Math.PI/3;
+    p.style.left = 50 + Math.cos(angle)*40 + '%';
+    p.style.bottom = 25 + Math.sin(angle)*30 + '%';
+    flowersContainer.appendChild(p);
+    petals.push(p);
   }
-  requestAnimationFrame(animate);
+  petals.forEach((p,i)=>{
+    setTimeout(()=>{p.style.opacity=1;}, 2000+i*300);
+  });
 }
 
-// Mostrar los textos uno a uno
 function showTexts(){
   let delay = 0;
   texts.forEach((txt, idx)=>{
@@ -178,60 +234,75 @@ function showTexts(){
       txt.style.opacity = 1;
       txt.style.transform = 'translateX(-50%) translateY(-50px)';
     }, delay);
-
     setTimeout(()=>{
       txt.style.opacity = 0;
       txt.style.transform = 'translateX(-50%) translateY(0)';
-    }, delay + 10000);
+    }, delay + 9000);
+    delay += 9000;
 
-    delay += 10000;
-
-    if(idx === 5){ // sexto texto
+    if(idx===5){ // sexto texto
       setTimeout(()=>{
-        moon.style.opacity = 1;
-        turtle.style.opacity = 1;
+        moon.style.opacity=1;
+        turtle.style.opacity=1;
+        turtleLabel.style.opacity=1;
+        moonLabel.style.opacity=1;
+        turtleLabel.style.left = '50%';
+        turtleLabel.style.top = '60%';
+        moonLabel.style.right = '10%';
+        moonLabel.style.top = '10%';
         moveTurtleCurved();
       }, delay);
       setTimeout(()=>{
-        finalText.style.opacity = 1;
-      }, delay + 7000);
+        finalText.style.opacity=1;
+        rainColors();
+      }, delay+7000);
     }
   });
 }
 
-// Animación de la tortuga en curva hacia la luna
 function moveTurtleCurved(){
   let duration = 7000;
   let startTime = null;
-
   let startX = window.innerWidth/2 - 20;
-  let startY = window.innerHeight*0.1 + window.innerHeight*0.8 - 40;
+  let startY = window.innerHeight - 100;
   let endX = window.innerWidth - 150;
-  let endY = window.innerHeight*0.1;
+  let endY = 50;
 
   function animate(time){
     if(!startTime) startTime = time;
     let progress = (time - startTime)/duration;
     if(progress > 1) progress = 1;
 
-    // Movimiento en curva usando parábola simple
-    let currentX = startX + (endX - startX)*progress;
-    let currentY = startY - (startY - endY)*progress + 150*Math.sin(progress*Math.PI);
+    let currentX = startX + (endX-startX)*progress;
+    let currentY = startY - (startY-endY)*progress + 100*Math.sin(progress*Math.PI);
 
     turtle.style.left = currentX + 'px';
     turtle.style.top = currentY + 'px';
+    turtleLabel.style.left = (currentX+10)+'px';
+    turtleLabel.style.top = (currentY-10)+'px';
 
-    if(progress < 1) requestAnimationFrame(animate);
+    if(progress<1) requestAnimationFrame(animate);
   }
-
   requestAnimationFrame(animate);
 }
 
+// Lluvia final de colores
+function rainColors(count=100){
+  for(let i=0;i<count;i++){
+    let drop = document.createElement('div');
+    drop.className = 'rainDrop';
+    drop.style.left = Math.random()*100 + '%';
+    drop.style.background = `hsl(${Math.random()*360},80%,60%)`;
+    drop.style.animationDuration = 1+Math.random()*2+'s';
+    document.body.appendChild(drop);
+  }
+}
+
 startBtn.addEventListener('click', ()=>{
-  startBtn.style.display = 'none';
+  startBtn.style.display='none';
   bgMusic.play();
-  createFlowers(30);
-  growCentralFlower();
+  createStemAndLeaves();
+  growStemAndFlower();
   showTexts();
 });
 </script>
