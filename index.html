@@ -47,7 +47,7 @@ let countdownActive = false;
 let countdownValue = 5;
 let explode = false;
 let particles = [];
-let heartExplosion = 0;
+let heartExplosion = 0; // efecto de explosión
 
 const texts=[
 "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
@@ -63,7 +63,7 @@ let moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
 let turtleTrail=[];
 
 function drawHeart(scale,time){
-  let pulse = 0.03*Math.sin(time/300) + heartExplosion;
+  let pulse = 0.05*Math.sin(time/300) + heartExplosion;
   for(let t=0;t<360;t+=2){
     let angle = t*Math.PI/180;
     let x = W/2 + (16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
@@ -125,16 +125,19 @@ function step(now){
   lastTime = now;
   ctx.clearRect(0,0,W,H);
 
-  // Reducir suavemente el corazón hacia el centro
-  heartScale *= 0.995; 
+  // Zoom suave del corazón
+  heartScale += 0.003 + 0.002*Math.sin(now/1000);
 
+  // Si explode, aumenta el efecto de expansión
   if(explode && heartExplosion<0.5) heartExplosion +=0.01;
 
   drawHeart(heartScale,now);
 
+  // Texto
   ctx.fillStyle = "#fff"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="700 26px 'Segoe UI'";
   if(currentText<texts.length) ctx.fillText(texts[currentText],W/2,H*0.1+Math.sin(now/500)*8);
 
+  // Tortuga
   if(currentText===4 && !turtle.visible){ turtle.visible=true; moon.visible=true; }
   if(turtle.visible){
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
@@ -162,7 +165,10 @@ function step(now){
     if(currentText===texts.length && !countdownActive){ 
       countdownActive=true; 
       countdownValue=5; 
-      let interval=setInterval(()=>{ countdownValue--; if(countdownValue<=0){ clearInterval(interval); createExplosion(); } },1000);
+      let interval=setInterval(()=>{
+        countdownValue--; 
+        if(countdownValue<=0){ clearInterval(interval); createExplosion(); } 
+      },1000);
     }
   }
 
@@ -172,11 +178,11 @@ function step(now){
 
   if(countdownActive && countdownValue<=0){
     if(explode) explodeParticles();
-    drawHeart(heartScale,now);
+    drawHeart(heartScale,now); // corazón explota visualmente
     ctx.fillStyle="#ff77d2"; ctx.font="900 48px 'Segoe UI'"; ctx.fillText("Te amo. No son rosas pero es algo mucho más hermoso",W/2,H*0.6);
     ctx.font="700 36px 'Segoe UI'"; ctx.fillText("Byron and Nayeli Forever",W/2,H*0.7);
     repeatBtn.style.display="block";
-    return;
+    return; // congelado
   }
 
   requestAnimationFrame(step);
