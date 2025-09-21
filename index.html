@@ -67,8 +67,7 @@ function drawBackground(frame){
     // Estrellas parpadeantes
     stars.forEach(s=>{
         s.alpha += (Math.random()-0.5)*0.05;
-        if(s.alpha<0) s.alpha=0;
-        if(s.alpha>1) s.alpha=1;
+        s.alpha = Math.max(0, Math.min(1, s.alpha));
         ctx.globalAlpha = s.alpha;
         ctx.fillStyle = "yellow";
         ctx.beginPath();
@@ -79,7 +78,7 @@ function drawBackground(frame){
 
     // Remolinos estilo Van Gogh
     for(let i=0;i<200;i++){
-        ctx.strokeStyle = hsla(${200+Math.sin(frame/50+i)*40},100%,50%,0.1);
+        ctx.strokeStyle = `hsla(${200+Math.sin(frame/50+i)*40},100%,50%,0.1)`;
         ctx.beginPath();
         let x = (i*40+frame)%W;
         let y = H/3 + Math.sin((i+frame/20))*50;
@@ -123,7 +122,7 @@ function drawSunflower(frame){
         let rad = Math.sqrt(Math.random())*40;
         let x = cx + Math.cos(ang)*rad;
         let y = cy + Math.sin(ang)*rad;
-        ctx.fillStyle = hsl(${40+Math.random()*40},100%,${40+Math.random()*20}%);
+        ctx.fillStyle = `hsl(${40+Math.random()*40},100%,${40+Math.random()*20}%)`;
         ctx.beginPath();
         ctx.arc(x,y,2,0,Math.PI*2);
         ctx.fill();
@@ -188,7 +187,6 @@ let particles = [];
 
 // ================== ANIMACIÓN ==================
 let frame=0;
-let started=false;
 function animate(){
     frame++;
     ctx.clearRect(0,0,W,H);
@@ -222,7 +220,7 @@ function animate(){
         for(let i=0;i<10;i++){
             particles.push(new Particle(
                 W/2, H/2,
-                hsl(${Math.random()*360},100%,50%),
+                `hsl(${Math.random()*360},100%,50%)`,
                 Math.random()*3+1,
                 (Math.random()-0.5)*4,
                 (Math.random()-0.5)*4
@@ -241,7 +239,6 @@ function animate(){
 // ================== INICIO ==================
 document.getElementById('startBtn').addEventListener('click', ()=>{
     document.getElementById('startBtn').style.display="none";
-    started=true;
     animate();
 });
 </script>
