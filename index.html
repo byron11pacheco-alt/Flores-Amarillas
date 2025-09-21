@@ -1,43 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feliz 21 de Septiembre</title>
 <style>
-html,body{ margin:0; padding:0; overflow:hidden; width:100%; height:100%; background:#050814; font-family:Segoe UI,sans-serif;}
-canvas{ display:block;}
-#ui{ position:absolute; inset:0; display:flex; justify-content:center; align-items:center; z-index:10; }
-.cover{text-align:center;color:white;}
-#startBtn{ margin-top:15px; padding:12px 28px; font-size:20px; border:none; border-radius:20px; background:linear-gradient(180deg,#ff77d2,#ff4b6b); color:#fff; cursor:pointer;}
-#repeatBtn{ position:absolute; bottom:20px; left:50%; transform:translateX(-50%); padding:12px 28px; font-size:20px; border:none; border-radius:20px; background:linear-gradient(180deg,#ff77d2,#ff4b6b); color:#fff; cursor:pointer; display:none; z-index:30;}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#050814;font-family:Segoe UI,sans-serif;}
+canvas{display:block;}
+#cover{
+  position:absolute; inset:0; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white; z-index:10;
+}
+#startBtn,#repeatBtn{
+  margin-top:15px; padding:12px 28px; font-size:20px; border:none; border-radius:20px;
+  background:linear-gradient(180deg,#ff77d2,#ff4b6b); color:#fff; cursor:pointer;
+}
+#repeatBtn{position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:none; z-index:30;}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="ui">
-  <div class="cover" id="cover">
-    <h1>Feliz 21 de Septiembre</h1>
-    <div>Presiona aquí 🌼</div>
-    <div>ATT: Bubu. Para: Nimosauria</div>
-    <button id="startBtn">Iniciar</button>
-  </div>
+<div id="cover">
+  <h1>Feliz 21 de Septiembre</h1>
+  <div>Presiona aquí 🌼</div>
+  <div>ATT: Bubu. Para: Nimosauria</div>
+  <button id="startBtn">Iniciar</button>
 </div>
 <button id="repeatBtn">Repetir</button>
+
 <script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-let W=canvas.width=window.innerWidth;
-let H=canvas.height=window.innerHeight;
-window.addEventListener('resize',()=>{ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; });
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+window.addEventListener('resize', ()=>{ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
 
-const startBtn=document.getElementById('startBtn');
-const cover=document.getElementById('cover');
-const repeatBtn=document.getElementById('repeatBtn');
+const startBtn = document.getElementById('startBtn');
+const cover = document.getElementById('cover');
+const repeatBtn = document.getElementById('repeatBtn');
 
-let started=false, startTime=0, lastTime=0;
-let currentText=0, heartScale=0.4;
-let countdownActive=false, countdownValue=5;
+let heartScale = 0.4;
+let currentText = 0;
+let started = false;
+let startTime = 0;
+let lastTime = 0;
+let countdownActive = false;
+let countdownValue = 5;
 
 const texts=[
 "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
@@ -50,15 +57,15 @@ const texts=[
 
 let turtle={x:W/2,y:H/2,radius:8,visible:false};
 let moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
-let turtleTrail=[], heartParticles=[];
+let turtleTrail=[];
 
-function drawHeartShape(scale,time){
-  let pulse=0.05*Math.sin(time/300);
+function drawHeart(scale,time){
+  let pulse = 0.05*Math.sin(time/300);
   for(let t=0;t<360;t+=2){
-    let angle=(t*Math.PI/180);
-    let x=W/2+(16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
-    let y=H/2-(13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*(scale+pulse)*H/16;
-    ctx.fillStyle=['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)];
+    let angle = t*Math.PI/180;
+    let x = W/2 + (16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
+    let y = H/2 - (13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*(scale+pulse)*H/16;
+    ctx.fillStyle = ['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)];
     ctx.beginPath();
     ctx.arc(x,y,2+Math.sin(time/200)*2,0,Math.PI*2);
     ctx.fill();
@@ -73,24 +80,26 @@ function drawTurtleTrail(){
     ctx.fill();
     p.radius*=0.95;
   });
-  turtleTrail=turtleTrail.filter(p=>p.radius>0.5);
+  turtleTrail = turtleTrail.filter(p=>p.radius>0.5);
 }
 
 function step(now){
-  const dt=Math.min(0.033,(now-lastTime)/1000);
-  lastTime=now;
+  const dt = Math.min(0.033,(now-lastTime)/1000);
+  lastTime = now;
   ctx.clearRect(0,0,W,H);
 
-  heartScale+=0.004;
-  drawHeartShape(heartScale,now);
+  heartScale += 0.004;
+  drawHeart(heartScale,now);
 
-  ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="700 26px 'Segoe UI'";
+  // Texto
+  ctx.fillStyle = "#fff"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="700 26px 'Segoe UI'";
   if(currentText<texts.length) ctx.fillText(texts[currentText],W/2,H*0.1+Math.sin(now/500)*8);
 
+  // Tortuga
   if(currentText===4 && !turtle.visible){ turtle.visible=true; moon.visible=true; }
   if(turtle.visible){
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>5){ turtle.x+=dx*0.02; turtle.y+=dy*0.02; turtleTrail.push({x:turtle.x,y:turtle.y,radius:4+Math.random()*2,color=['#ff4b6b','#ff77d2','#ffd700'][Math.floor(Math.random()*3)]}); }
+    if(dist>5){ turtle.x += dx*0.02; turtle.y += dy*0.02; turtleTrail.push({x:turtle.x,y:turtle.y,radius:4+Math.random()*2,color:['#ff4b6b','#ff77d2','#ffd700'][Math.floor(Math.random()*3)]}); }
     drawTurtleTrail();
     ctx.fillStyle="#2ecc71"; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.radius,0,Math.PI*2); ctx.fill();
     ctx.fillStyle="#fff"; ctx.font="14px 'Segoe UI'"; ctx.fillText("Tortuga",turtle.x-20,turtle.y-20);
@@ -98,10 +107,17 @@ function step(now){
   }
 
   if(started && !countdownActive){
-    let elapsed=now-startTime;
-    let newIndex=Math.floor(elapsed/10000);
-    if(newIndex!==currentText) currentText=Math.min(newIndex,texts.length);
-    if(currentText===texts.length && !countdownActive){ countdownActive=true; countdownValue=5; let countdownInterval=setInterval(()=>{ countdownValue--; if(countdownValue<=0) clearInterval(countdownInterval); },1000); }
+    let elapsed = now-startTime;
+    let newIndex = Math.floor(elapsed/10000);
+    if(newIndex!==currentText) currentText = Math.min(newIndex,texts.length);
+    if(currentText===texts.length && !countdownActive){ 
+      countdownActive=true; 
+      countdownValue=5; 
+      let interval=setInterval(()=>{
+        countdownValue--; 
+        if(countdownValue<=0){ clearInterval(interval); } 
+      },1000);
+    }
   }
 
   if(countdownActive && countdownValue>0){
@@ -112,7 +128,7 @@ function step(now){
     ctx.fillStyle="#ff77d2"; ctx.font="900 48px 'Segoe UI'"; ctx.fillText("Te amo. No son rosas pero es algo mucho más hermoso",W/2,H*0.6);
     ctx.font="700 36px 'Segoe UI'"; ctx.fillText("Byron and Nayeli Forever",W/2,H*0.7);
     repeatBtn.style.display="block";
-    return; // congelar animación
+    return; // se congela aquí
   }
 
   requestAnimationFrame(step);
@@ -128,8 +144,9 @@ startBtn.addEventListener('click',()=>{
 repeatBtn.addEventListener('click',()=>{
   repeatBtn.style.display="none";
   heartScale=0.4; currentText=0; countdownActive=false;
-  turtle={x:W/2,y:H/2,radius:8,visible:false}; moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
-  turtleTrail=[]; heartParticles=[]; startTime=performance.now();
+  turtle={x:W/2,y:H/2,radius:8,visible:false};
+  moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
+  turtleTrail=[]; startTime=performance.now();
   requestAnimationFrame(step);
 });
 </script>
