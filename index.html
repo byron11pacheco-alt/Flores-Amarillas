@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Amor Visual</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amor Visual Ultra</title>
 <style>
 body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#050814; font-family: "Segoe UI", sans-serif;}
 canvas { display:block; width:100vw; height:100vh;}
 #ui{position:absolute; z-index:20; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;}
-.cover{pointer-events:auto;text-align:center;}
-.title{font-size:48px; font-weight:800; color:#ff77d2; background:linear-gradient(90deg,#ff77d2,#ffd700,#5ee3b3,#7fb3ff); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 8px rgba(0,0,0,0.5); animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{from{filter:drop-shadow(0 0 6px #ff77d2);} to{filter:drop-shadow(0 0 18px #ffd700);}}
+.cover{text-align:center;}
+.title{font-size:48px; font-weight:800; background:linear-gradient(90deg,#ff77d2,#ffd700,#5ee3b3,#7fb3ff); -webkit-background-clip:text; color:transparent; text-shadow:0 2px 8px rgba(0,0,0,0.5);}
 .subtitle{font-size:20px;color:#fff;margin-bottom:18px;text-shadow:0 2px 6px rgba(0,0,0,0.7);}
-#startBtn{pointer-events:auto;margin-top:10px;padding:14px 30px;font-size:20px;border:none;border-radius:30px;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.45);}
+#att{font-size:16px;color:#fff;margin-top:10px;text-shadow:0 2px 6px rgba(0,0,0,0.7);}
+#startBtn{margin-top:10px;padding:14px 30px;font-size:20px;border:none;border-radius:30px;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.45);}
 #countdown{position:absolute; top:10px; right:10px; font-size:36px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.8); display:none; z-index:25;}
-#repeatBtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:16px 32px;font-size:24px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;display:none; z-index:30;}
+#repeatBtn{position:absolute;top:90%;left:50%;transform:translate(-50%,-50%);padding:16px 32px;font-size:24px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;display:none; z-index:30;}
 </style>
 </head>
 <body>
@@ -23,9 +23,9 @@ canvas { display:block; width:100vw; height:100vh;}
     <h1 class="title">Feliz 21 de Septiembre</h1>
     <div class="subtitle">Esto faltaba</div>
     <button id="startBtn">Presiona aquí 🌼</button>
+    <div id="att">ATT: Bubu. Para: Nimosauria</div>
   </div>
 </div>
-
 <div id="countdown"></div>
 <button id="repeatBtn">Repetir</button>
 <canvas id="c"></canvas>
@@ -34,16 +34,18 @@ canvas { display:block; width:100vw; height:100vh;}
 <script>
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
-let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
+let W=canvas.width=innerWidth,H=canvas.height=innerHeight;
 window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
 
+// UI
 const startBtn=document.getElementById('startBtn');
 const cover=document.getElementById('cover');
 const bgMusic=document.getElementById('bgMusic');
 const countdownEl=document.getElementById('countdown');
 const repeatBtn=document.getElementById('repeatBtn');
 
-let started=false, currentText=0, startTime=null, countdown=5, countdownStarted=false;
+let started=false, currentText=0, startTime=null, countdown=5, countdownStarted=false, frozen=false;
+let displayText="", textIndex=0;
 
 // Textos
 const texts=[
@@ -57,95 +59,102 @@ const texts=[
 
 // PARTICULAS
 class Particle{
-  constructor(x,y,dx,dy,r,color){
-    this.x=x; this.y=y; this.dx=dx; this.dy=dy; this.r=r; this.color=color; this.alpha=1;
-  }
-  step(dt){
-    this.x+=this.dx*dt; this.y+=this.dy*dt; this.alpha-=0.005; if(this.alpha<0)this.alpha=0;
-  }
-  draw(){
-    ctx.globalAlpha=this.alpha;
-    ctx.fillStyle=this.color;
-    ctx.beginPath();
-    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha=1;
-  }
+  constructor(x,y,dx,dy,r,color){this.x=x;this.y=y;this.dx=dx;this.dy=dy;this.r=r;this.color=color;this.alpha=1; this.scale=Math.random()*0.5+0.5; this.inc=Math.random()*0.02+0.01; this.baseR=r;}
+  step(dt){this.x+=this.dx*dt; this.y+=this.dy*dt; this.alpha-=0.002; if(this.alpha<0)this.alpha=0; this.scale=this.baseR*(1+0.3*Math.sin(performance.now()/150));}
+  draw(){ctx.globalAlpha=this.alpha; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,this.scale,0,Math.PI*2); ctx.shadowColor=this.color; ctx.shadowBlur=15; ctx.fill(); ctx.globalAlpha=1;}
 }
 
 let particles=[], hearts=[];
-function spawnHeart(x,y,size,color){ hearts.push(new Particle(x,y,Math.random()*2-1,Math.random()*-1-0.5,size,color)); }
-function spawnParticle(x,y,size,color){ particles.push(new Particle(x,y,(Math.random()-0.5)*4,(Math.random()-0.5)*4,size,color)); }
+function spawnHeart(x,y,size,color){hearts.push(new Particle(x,y,(Math.random()*2-1),(Math.random()*-1-0.5),size,color));}
+function spawnParticle(x,y,size,color){particles.push(new Particle(x,y,(Math.random()-0.5)*1,(Math.random()-0.5)*1,size,color));}
 
-let turtle={x:0,y:0,radius:8,visible:false, name:"Tortuga"};
+let turtle={x:0,y:0,radius:8,visible:false,name:"Tortuga"};
 let moon={x:null,y:null,r:24,visible:false,arrived:false};
 
+let heartScale=0.1;
 let lastTime=performance.now();
+
+function drawHeartShape(scale){
+  for(let t=0;t<360;t+=2){
+    let angle=(t*Math.PI/180);
+    let x=W/2+16*scale*Math.pow(Math.sin(angle),3)*W/4;
+    let y=H/2-(13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*scale*H/16;
+    let color=['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)];
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.arc(x,y,2+Math.sin(performance.now()/200)*2,0,Math.PI*2);
+    ctx.shadowColor=color; ctx.shadowBlur=15;
+    ctx.fill();
+    if(Math.random()<0.05) spawnParticle(x,y,1,color);
+  }
+}
+
 function step(now){
   let dt=Math.min(0.033,(now-lastTime)/16);
   lastTime=now;
 
-  // fondo degradado
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#15001a'); g.addColorStop(1,'#050814');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.clearRect(0,0,W,H);
+  heartScale+=0.002;
+  drawHeartShape(heartScale);
 
-  // dibujar particulas
-  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt); particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
-  for(let i=hearts.length-1;i>=0;i--){hearts[i].step(dt); hearts[i].draw(); if(hearts[i].alpha<=0)hearts.splice(i,1);}
+  // partículas
+  if(Math.random()<0.3) spawnParticle(Math.random()*W,Math.random()*H,2,'#fff');
+  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt);particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
+  for(let i=hearts.length-1;i>=0;i--){hearts[i].step(dt);hearts[i].draw(); if(hearts[i].alpha<=0)hearts.splice(i,1);}
 
-  // dibujar texto
+  // efecto escritura
+  if(currentText<texts.length){
+    if(displayText.length<texts[currentText].length){
+      displayText+=texts[currentText][displayText.length];
+    }
+  }
+
   ctx.save(); ctx.font='700 28px "Segoe UI"'; ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  if(currentText<texts.length)ctx.fillText(texts[currentText],W/2,H*0.15);
+  ctx.fillText(displayText,W/2,H*0.15);
   ctx.restore();
 
-  // texto 5 tortuga
+  // tortuga
   if(currentText===4){
     if(!turtle.visible){
       turtle.visible=true; turtle.x=W/2; turtle.y=H/2; moon.x=W*0.85; moon.y=H*0.2; moon.visible=true;
     }
-    // mover tortuga
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>2){turtle.x+=dx*0.01; turtle.y+=dy*0.01;}
-    // dibujar tortuga
+    if(dist>2){turtle.x+=dx*0.01; turtle.y+=dy*0.01; spawnHeart(turtle.x,turtle.y,4,'#00ff00');}
     ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.r,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='white'; ctx.font='16px "Segoe UI"'; ctx.fillText(turtle.name,turtle.x+20,turtle.y-10); ctx.restore();
-    // dibujar luna
     ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
 
-  // generar corazones y partículas si cuenta regresiva
+  // cuenta regresiva
   if(countdownStarted){
     countdownEl.style.display='block';
     countdownEl.textContent=countdown;
-    for(let i=0;i<2;i++){ spawnHeart(Math.random()*W,Math.random()*H,3+Math.random()*3,'#ff4b6b'); spawnParticle(Math.random()*W,Math.random()*H,2+Math.random()*2,'#fff'); }
+    for(let i=0;i<5;i++){ spawnHeart(Math.random()*W,Math.random()*H,3+Math.random()*3,'#ff4b6b'); spawnParticle(Math.random()*W,Math.random()*H,2+Math.random()*2,'#fff'); }
   }else countdownEl.style.display='none';
 
   // avance de textos
-  if(started && !countdownStarted){
+  if(started && !countdownStarted && !frozen){
     let elapsed=now-startTime;
     let newIndex=Math.floor(elapsed/5000);
     if(newIndex!==currentText){
       currentText=Math.min(newIndex,texts.length);
+      displayText=""; textIndex=0;
       if(currentText===texts.length){ startCountdown(); }
     }
   }
 
-  // explosion final
-  if(countdown===0){
+  // final congelado
+  if(frozen){
     ctx.save();
-    ctx.font='60px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2);
+    ctx.font='50px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2);
     ctx.font='36px "Segoe UI"'; ctx.fillStyle='white'; ctx.fillText('Byron and Nayeli Forever',W/2,H/2+60);
     ctx.restore();
     repeatBtn.style.display='block';
-    countdownStarted=false;
-    countdown=-1;
   }
 
   requestAnimationFrame(step);
 }
 
-// iniciar animacion
 function startAnimation(){
   if(started) return;
   started=true; currentText=0; startTime=performance.now();
@@ -154,24 +163,21 @@ function startAnimation(){
   requestAnimationFrame(step);
 }
 
-// iniciar cuenta regresiva
 function startCountdown(){
   countdownStarted=true;
   countdown=5;
   const interval=setInterval(()=>{
     countdown--;
-    if(countdown<=0) clearInterval(interval);
+    if(countdown<=0){ clearInterval(interval); countdownStarted=false; frozen=true; }
   },1000);
 }
 
-// boton iniciar
 startBtn.addEventListener('click',startAnimation);
 canvas.addEventListener('click',()=>{ if(!started) startAnimation(); });
-
-// boton repetir
 repeatBtn.addEventListener('click',()=>{
-  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5;
+  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5; frozen=false;
   turtle.visible=false; moon.visible=false; repeatBtn.style.display='none';
+  heartScale=0.1; displayText="";
   cover.style.display='flex';
 });
 </script>
