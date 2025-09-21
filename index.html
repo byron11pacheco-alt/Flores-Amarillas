@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -50,7 +50,7 @@ window.addEventListener('resize', ()=>{
 
 // ================== ESTRELLAS ==================
 let stars = [];
-for(let i=0;i<80;i++){
+for(let i=0;i<60;i++){ // reducidas para rendimiento
     stars.push({
         x: Math.random()*W,
         y: Math.random()*H/2,
@@ -75,16 +75,6 @@ function drawBackground(frame){
         ctx.fill();
     });
     ctx.globalAlpha=1;
-
-    // Remolinos estilo Van Gogh
-    for(let i=0;i<200;i++){
-        ctx.strokeStyle = `hsla(${200+Math.sin(frame/50+i)*40},100%,50%,0.1)`;
-        ctx.beginPath();
-        let x = (i*40+frame)%W;
-        let y = H/3 + Math.sin((i+frame/20))*50;
-        ctx.arc(x,y,30,0,Math.PI*2);
-        ctx.stroke();
-    }
 }
 
 // ================== GIRASOL ==================
@@ -105,19 +95,19 @@ function drawSunflower(frame){
     ctx.fill();
 
     // pétalos
-    let petalos = 20;
+    let petalos = 18;
     for(let i=0;i<petalos;i++){
         let ang = (i/petalos)*Math.PI*2 + Math.sin(frame/30)/5;
         let px = cx + Math.cos(ang)*90;
         let py = cy + Math.sin(ang)*90;
         ctx.beginPath();
         ctx.fillStyle="gold";
-        ctx.ellipse(px, py, 30, 60, ang, 0, Math.PI*2);
+        ctx.ellipse(px, py, 25, 55, ang, 0, Math.PI*2);
         ctx.fill();
     }
 
-    // centro
-    for(let i=0;i<300;i++){
+    // centro (menos partículas para no trabar)
+    for(let i=0;i<80;i++){
         let ang = Math.random()*Math.PI*2;
         let rad = Math.sqrt(Math.random())*40;
         let x = cx + Math.cos(ang)*rad;
@@ -130,20 +120,16 @@ function drawSunflower(frame){
 }
 
 // ================== TORTUGA ==================
-let turtle = {x: W/2, y: H, angle: -Math.PI/2, radius: 200, path: []};
+let turtle = {x: W/2, y: H-50, progress: 0};
 function drawTurtle(){
-    // cuerpo
-    ctx.fillStyle = 'darkgreen';
+    ctx.save();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "lime";
+    ctx.fillStyle = 'limegreen';
     ctx.beginPath();
-    ctx.arc(turtle.x, turtle.y, 15, 0, Math.PI*2);
+    ctx.arc(turtle.x, turtle.y, 10, 0, Math.PI*2); // más pequeña
     ctx.fill();
-    // corazones
-    turtle.path.forEach(p=>{
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-        ctx.fill();
-    });
+    ctx.restore();
 }
 
 // ================== TEXTOS ==================
@@ -152,95 +138,7 @@ const texts = [
     "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
     "“Si hago cosas no es para que me quieras, sino para que veas que te quiero” — Mario Benedetti",
     "Si no es eterno, que sea inolvidable",
-    "Y fin colorado, este amor ha comenzado",
-    "¡Te amo de aquí a la Luna, a pasitos de tortuga!"
+    "Te amo de aquí a la Luna, a pasitos de tortuga",
+    "Y fin colorado, este amor ha comenzado"
 ];
-let currentText = 0;
-let textTimer = 0;
-
-// ================== PARTICULAS FINALES ==================
-class Particle {
-    constructor(x,y, color, size, vx, vy){
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.size = size;
-        this.vx = vx;
-        this.vy = vy;
-        this.alpha = 1;
-    }
-    update(){
-        this.x += this.vx;
-        this.y += this.vy;
-        if(this.alpha>0) this.alpha -= 0.005;
-    }
-    draw(){
-        ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-}
-let particles = [];
-
-// ================== ANIMACIÓN ==================
-let frame=0;
-function animate(){
-    frame++;
-    ctx.clearRect(0,0,W,H);
-    drawBackground(frame);
-    drawSunflower(frame);
-
-    // textos
-    ctx.fillStyle = 'lightgray';
-    ctx.font = '30px "Segoe UI", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    if(currentText<texts.length){
-        ctx.fillText(texts[currentText], W/2, 80);
-        textTimer++;
-        if(textTimer>400){ // cambia cada ~7s
-            currentText++;
-            textTimer=0;
-        }
-    } else {
-        // tortuga
-        let tSpeed = 0.02;
-        turtle.angle += tSpeed;
-        turtle.x = W/2 + Math.cos(turtle.angle)*turtle.radius;
-        turtle.y = H/2 + Math.sin(turtle.angle)*turtle.radius;
-        turtle.path.push({x:turtle.x, y:turtle.y, size:3});
-        if(turtle.path.length>50) turtle.path.shift();
-        drawTurtle();
-
-        // explosión de partículas
-        for(let i=0;i<10;i++){
-            particles.push(new Particle(
-                W/2, H/2,
-                `hsl(${Math.random()*360},100%,50%)`,
-                Math.random()*3+1,
-                (Math.random()-0.5)*4,
-                (Math.random()-0.5)*4
-            ));
-        }
-        particles.forEach(p=>{ p.update(); p.draw(); });
-        
-        ctx.fillStyle = 'white';
-        ctx.font = '50px "Segoe UI", sans-serif';
-        ctx.fillText('FIN. NO SERÁS ESPECTADORA', W/2, H/2);
-    }
-
-    requestAnimationFrame(animate);
-}
-
-// ================== INICIO ==================
-document.getElementById('startBtn').addEventListener('click', ()=>{
-    document.getElementById('startBtn').style.display="none";
-    animate();
-});
-</script>
-</body>
-</html>
+let
