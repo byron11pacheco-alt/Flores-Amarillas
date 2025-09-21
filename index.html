@@ -3,106 +3,42 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Feliz 21 de Septiembre — Animación</title>
+<title>Feliz 21 de Septiembre — Animación Optimizada</title>
 <style>
   :root{
     --accent1:#ffd700;
     --accent2:#ff6b6b;
-    --text-gray:#ddd;
+    --bg1:#03102a;
+    --bg2:#07254a;
   }
-  html,body{
-    height:100%;
-    margin:0;
-    background:#050814;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    overflow:hidden;
-  }
+  html,body{ height:100%; margin:0; background:var(--bg1); font-family: "Segoe UI", Roboto, Arial, sans-serif; overflow:hidden; }
+  canvas{ display:block; width:100vw; height:100vh; }
 
-  /* Canvas ocupa toda la pantalla */
-  canvas { display:block; width:100vw; height:100vh; }
-
-  /* Botón inicio y portada */
-  #ui {
-    position:absolute;
-    z-index:20;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    pointer-events:none;
-  }
-  .cover {
-    pointer-events:auto;
-    text-align:center;
-  }
-
-  /* Título estilo 'grafiti' (CSS sólo) con animación de iluminación */
+  /* UI portada */
+  #ui { position:absolute; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .cover { pointer-events:auto; text-align:center; }
   .title {
-    font-size:48px;
-    line-height:1;
-    margin:0 0 6px 0;
-    padding:6px 12px;
-    display:inline-block;
-    color: #ff77d2;
-    letter-spacing:1px;
-    font-weight:800;
-    text-transform:none;
-    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
-    background: linear-gradient(90deg, #ff77d2, #ffd700, #5ee3b3, #7fb3ff);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-    animation: glow 2s ease-in-out infinite alternate;
+    font-size:48px; margin:0; padding:8px 14px; display:inline-block; background:linear-gradient(90deg,#ff77d2,#ffd700,#5ee3b3,#7fb3ff); -webkit-background-clip:text; background-clip:text; color:transparent;
+    font-weight:800; letter-spacing:1px; text-shadow:0 4px 18px rgba(0,0,0,0.6);
+    animation:glow 2.2s ease-in-out infinite alternate;
   }
-  .subtitle {
-    font-size:20px;
-    color:var(--accent2);
-    display:block;
-    margin-bottom:18px;
-    text-shadow:0 2px 8px rgba(0,0,0,0.6);
+  .subtitle { font-size:18px; color:var(--accent2); margin:8px 0 14px 0; }
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 8px rgba(255,120,200,0.4)); transform:translateY(-2px); }
+    to { filter: drop-shadow(0 0 22px rgba(255,220,70,0.9)); transform:translateY(2px); }
   }
-  @keyframes glow{
-    from { filter: drop-shadow(0 0 6px rgba(255,120,200,0.6)) saturate(1.1) blur(0px); transform:translateY(-2px) rotate(-0.5deg); }
-    to   { filter: drop-shadow(0 0 18px rgba(255,220,50,0.95)) saturate(1.4) blur(0px); transform:translateY(2px) rotate(0.5deg); }
+  #startBtn {
+    pointer-events:auto; margin-top:8px; background:linear-gradient(180deg,#fff176,#ffb300); border:0; padding:12px 26px; border-radius:26px; font-size:18px; cursor:pointer;
+    box-shadow:0 8px 26px rgba(0,0,0,0.45);
   }
 
-  #startBtn{
-    pointer-events:auto;
-    margin-top:10px;
-    background:linear-gradient(180deg,#fff176,#ffb300);
-    border:0;
-    padding:14px 30px;
-    border-radius:30px;
-    font-size:20px;
-    cursor:pointer;
-    box-shadow:0 8px 30px rgba(0,0,0,0.45);
-    transition:transform .15s ease;
-  }
-  #startBtn:active{ transform:scale(.98) }
+  /* small badge for turtle/moon */
+  .badge { position:absolute; z-index:41; left:12px; top:12px; color:#ddd; font-weight:700; display:flex; gap:10px; align-items:center; font-size:13px; pointer-events:none; }
+  .dot { width:14px; height:14px; border-radius:50%; box-shadow:0 0 10px rgba(0,0,0,0.35); }
+  .dot.turtle { background:#2ecc71; box-shadow:0 0 10px rgba(46,204,113,0.5); }
+  .dot.moon { background:#fff; box-shadow:0 0 14px rgba(255,255,255,0.85); }
 
-  /* Texto pequeñito indicador tortuga / luna cuando aparezcan */
-  .badge {
-    position:absolute;
-    z-index:22;
-    left:10px;
-    top:10px;
-    pointer-events:none;
-    color:var(--text-gray);
-    font-weight:700;
-    text-shadow:0 2px 6px rgba(0,0,0,.7);
-    display:inline-flex;
-    gap:8px;
-    align-items:center;
-    font-size:14px;
-  }
-  .badge .dot{
-    width:16px;height:16px;border-radius:50%;
-  }
-  .badge .turtleDot{ background: #2ecc71; box-shadow:0 0 8px rgba(46,204,113,.6); }
-  .badge .moonDot{ background: #fff; box-shadow:0 0 10px rgba(255,255,255,.8); }
-
-  /* Texto final (se muestra dentro del canvas; esto es solo fallback) */
-  #audioNotice { position: absolute; bottom:12px; left:12px; color:#999; font-size:12px; z-index:21; }
+  #audioNotice { position:absolute; right:12px; bottom:12px; z-index:41; color:#bbb; font-size:12px; }
 </style>
 </head>
 <body>
@@ -116,24 +52,26 @@
 </div>
 
 <div class="badge" id="badge" style="display:none;">
-  <div class="dot turtleDot"></div> Tortuga
-  <div style="width:18px"></div>
-  <div class="dot moonDot"></div> Luna
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="dot turtle"></div> Tortuga
+  </div>
+  <div style="width:14px"></div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="dot moon"></div> Luna
+  </div>
 </div>
 
-<div id="audioNotice">Pulsa para iniciar audio y animación</div>
-
+<div id="audioNotice">Pulsa para iniciar audio</div>
 <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" preload="auto"></audio>
 <canvas id="c"></canvas>
 
 <script>
-/* ===================== CONFIG/SETUP ===================== */
+/* ========= Setup ========= */
 const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d', { alpha: false });
+const ctx = canvas.getContext('2d', { alpha: false }); // opaque canvas for speed
 let W = canvas.width = innerWidth;
 let H = canvas.height = innerHeight;
-
-addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+window.addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
 
 const startBtn = document.getElementById('startBtn');
 const cover = document.getElementById('cover');
@@ -141,38 +79,7 @@ const bgMusic = document.getElementById('bgMusic');
 const badge = document.getElementById('badge');
 const audioNotice = document.getElementById('audioNotice');
 
-/* ===================== PARTICLE SYSTEMS ===================== */
-class P {
-  constructor(x,y,color,size,vx,vy,life=Infinity){
-    this.x=x; this.y=y; this.color=color; this.size=size; this.vx=vx; this.vy=vy;
-    this.life = life; this.age=0; this.alpha = 1;
-  }
-  step(dt){
-    this.age += dt;
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
-    if(this.age>this.life) this.alpha = Math.max(0, 1 - (this.age - this.life)/1.5);
-  }
-  draw(){
-    ctx.globalAlpha = this.alpha;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-}
-
-/* ===================== SYSTEM ARRAYS ===================== */
-let sparkle = [];       // chispas doradas alrededor/creciendo
-let centerDots = [];    // centro de la flor
-let leafDots = [];      // hojas verdes
-let rootDots = [];      // raíces cafés
-let smallPlants = [];   // arrays of particles for small plants
-let explosion = [];     // final
-let hearts = [];        // rastro tortuga
-
-/* ===================== TIMING / STATES ===================== */
+/* ========= Texts timing (overlap: 10s each, start next after 5s) ========= */
 const texts = [
   "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
   "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
@@ -181,399 +88,439 @@ const texts = [
   "Y fin colorado, este amor ha comenzado",
   "¡Te amo de aquí a la Luna, a pasitos de tortuga!"
 ];
-let currentText = 0;
-let textTick = 0;
-const TEXT_DURATION = 10_000; // ms por texto
-let lastTime = performance.now();
+const TEXT_DURATION = 10000; // each shown 10s
+const TEXT_STEP = 5000;      // start next after 5s (so overlap of 5s)
 let startTime = null;
-let started = false;
 
-/* ===================== FLOWER MAIN (position) ===================== */
-const flowerX = () => W/2;
-const flowerY = () => H*0.66;
+/* ========= Particle classes & limits ========= */
+class Particle {
+  constructor(x,y,color,size,vx,vy,life=Infinity){
+    this.x=x; this.y=y; this.color=color; this.size=size; this.vx=vx; this.vy=vy;
+    this.life = life; this.age=0; this.alpha=1;
+  }
+  update(dt){
+    this.age += dt;
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    if(this.age > this.life) this.alpha -= 0.6*dt; // fade
+  }
+  draw(){
+    if(this.alpha <= 0) return;
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
 
-/* ===================== CREATE INITIAL MASSIVE FLOWER (many particles) ===================== */
-function spawnMainFlower(){
-  // raíces cafés (hundreds)
-  for(let i=0;i<400;i++){
-    const px = flowerX() + (Math.random()-0.5)*120;
-    const py = flowerY() + 30 + Math.random()*80;
-    rootDots.push(new P(px,py, '#6b3b1a', 2, (Math.random()-0.5)*6, -10 - Math.random()*40, 1.5 + Math.random()*2));
+/* ========= World state ========= */
+let stem = [];           // stem particles (brown vertical points) persistent
+let center = [];         // center yellow particles
+let leaves = [];         // green leaf particles
+let sparkles = [];       // golden sparkles around center (grows)
+let smallFlowers = [];   // array of flower objects (each has its own arrays)
+let hearts = [];         // turtle trail
+let explosion = [];      // final explosion
+let particlesLimit = 6000; // absolute safety cap for total particles
+
+/* ========= Flower positions ========= */
+function centerX(){ return W/2; }
+function centerY(){ return H*0.68; }
+
+/* ========= Turtle & Moon ========= */
+const turtle = {x:0,y:0,r:8,visible:false, arrived:false};
+const moon = {x: null, y: null, r:36, visible:false};
+
+/* ========= Performance helpers ========= */
+function totalParticleCount(){
+  return stem.length + center.length + leaves.length + sparkles.length + hearts.length + explosion.length + smallFlowers.reduce((s,f)=>s+f.total(),0);
+}
+
+/* ========= Initialize main flower (not all at once; we will grow) ========= */
+function initMainFlower(){
+  // Start with a short stem (seed) and small center
+  for(let i=0;i<40;i++){
+    const sx = centerX() + (Math.random()-0.5)*6;
+    const sy = centerY() + 80 + Math.random()*40;
+    stem.push(new Particle(sx, sy, '#5a3518', 2.2, 0, -6, 3 + Math.random()*2));
   }
-  // hojas verdes (large)
-  for(let i=0;i<700;i++){
-    const px = flowerX() + (Math.random()-0.5)*260;
-    const py = flowerY() - (Math.random()*160);
-    const g = 80 + Math.random()*80;
-    leafDots.push(new P(px,py, `hsl(${120+Math.random()*40},60%,${30+Math.random()*20}%)`, 2 + Math.random()*2, (Math.random()-0.5)*1.2, (Math.random()-0.15)*0.2, 2 + Math.random()*3));
-  }
-  // centro amarillo/naranja (many)
-  for(let i=0;i<1500;i++){
+  for(let i=0;i<120;i++){
     const ang = Math.random()*Math.PI*2;
-    const r = Math.sqrt(Math.random())*50;
-    const px = flowerX() + Math.cos(ang)*r;
-    const py = flowerY() - Math.sin(ang)*r*0.7;
+    const r = Math.sqrt(Math.random())*18;
+    center.push(new Particle(centerX() + Math.cos(ang)*r, centerY() - Math.sin(ang)*r*0.6, `hsl(${40+Math.random()*30},95%,${45+Math.random()*10}%)`, 1 + Math.random()*1.6, 0,0, 2 + Math.random()*2));
+  }
+}
+
+/* ========= Small-flower helper (spawned sparsely across screen) ========= */
+function spawnSmallFlower(x,y,scale=1){
+  // Each small flower keeps its own arrays to easier manage count
+  const f = {
+    stem: [],
+    center: [],
+    leaves: [],
+    t: 0,
+    total(){ return this.stem.length + this.center.length + this.leaves.length; }
+  };
+  // modest sizes so not heavy
+  for(let i=0;i<20*scale;i++){
+    const sx = x + (Math.random()-0.5)*10*scale;
+    const sy = y + (Math.random()*30*scale);
+    f.stem.push(new Particle(sx, sy, '#5a3518', 1.6, 0, -4 - Math.random()*2, 2 + Math.random()*3));
+  }
+  for(let i=0;i<80*scale;i++){
+    const ang = Math.random() * Math.PI*2;
+    const r = Math.sqrt(Math.random()) * (8*scale);
+    f.center.push(new Particle(x + Math.cos(ang)*r, y - Math.sin(ang)*r*0.6, `hsl(${40+Math.random()*30},95%,${45+Math.random()*10}%)`, 0.9 + Math.random()*1.2, 0,0, 2 + Math.random()*2));
+  }
+  for(let i=0;i<30*scale;i++){
+    const px = x + (Math.random()-0.5)*40*scale;
+    const py = y - Math.random()*30*scale;
+    f.leaves.push(new Particle(px, py, `hsl(${110+Math.random()*30},60%,${30+Math.random()*12}%)`, 1 + Math.random()*1.2, (Math.random()-0.5)*0.2, (Math.random()-0.4)*0.2, 2 + Math.random()*2));
+  }
+  smallFlowers.push(f);
+}
+
+/* ========= Growth functions that gradually add particles ========= */
+let lastGrowth = 0;
+function growMainFlower(dt, elapsed){
+  // Keep adding a few stem particles upward to simulate growth
+  if(stem.length < 220 && Math.random() < 0.9){
+    const topY = Math.min(...stem.map(s=>s.y));
+    const newY = topY - (6 + Math.random()*4);
+    const xJit = (Math.random()-0.5)*8;
+    stem.push(new Particle(centerX() + xJit, Math.max(newY, centerY()+10), '#5a3518', 2.4, 0, -6 - Math.random()*2, 3 + Math.random()*2));
+  }
+
+  // Add golden sparkles gradually; rate increases near end
+  const progress = Math.min(1, elapsed / 70000); // ~70s to full intensity
+  const sparkleSpawnRate = 8 + Math.floor(progress * 120); // up to ~128/sec but we'll spawn per frame limited
+  const spawnThisFrame = Math.floor(sparkleSpawnRate * dt);
+  for(let i=0;i<spawnThisFrame;i++){
+    if(totalParticleCount() > particlesLimit) break;
+    const ang = Math.random()*Math.PI*2;
+    const rad = 40 + Math.random()*200;
+    const px = centerX() + Math.cos(ang)*rad;
+    const py = centerY() - Math.sin(ang)*rad*0.6 - Math.random()*20;
     const hue = 40 + Math.random()*30;
-    centerDots.push(new P(px,py, `hsl(${hue}, 95%, ${45+Math.random()*12}%)`, 1 + Math.random()*1.8, (Math.random()-0.5)*0.3, (Math.random()-0.5)*0.3, 3 + Math.random()*3));
+    const vx = (centerX() - px) * (0.02 + Math.random()*0.03);
+    const vy = (centerY() - py) * (0.02 + Math.random()*0.03);
+    sparkles.push(new Particle(px, py, `hsl(${hue},100%,55%)`, 0.9 + Math.random()*1.6, vx, vy, 0.6 + Math.random()*2.0));
   }
-}
 
-/* ===================== SPARKLES AROUND that GROW WITH TIME ===================== */
-let sparkleRate = 1; // per second, will increase over time
-function spawnSparkleBurst(n=1){
-  for(let i=0;i<n;i++){
+  // Grow center slightly: add a few center particles over time
+  if(center.length < 700 && Math.random() < 0.9){
     const ang = Math.random()*Math.PI*2;
-    const rad = 60 + Math.random()*220;
-    const px = flowerX() + Math.cos(ang)*rad;
-    const py = flowerY() - Math.sin(ang)*rad*0.6 - Math.random()*40;
-    const hue = 40 + Math.random()*40;
-    const vx = (flowerX() - px) * (0.02 + Math.random()*0.02);
-    const vy = (flowerY() - py) * (0.02 + Math.random()*0.02) - (Math.random()*0.2);
-    sparkle.push(new P(px, py, `hsl(${hue},95%,55%)`, 1 + Math.random()*2, vx, vy, 0.5 + Math.random()*1.2));
+    const r = Math.sqrt(Math.random())*48;
+    center.push(new Particle(centerX() + Math.cos(ang)*r, centerY() - Math.sin(ang)*r*0.6, `hsl(${40+Math.random()*30},95%,${45+Math.random()*10}%)`, 1 + Math.random()*1.8, 0,0, 3 + Math.random()*3));
+  }
+
+  // After some elapsed time, spawn large green leaf clusters gradually
+  if(elapsed > 22000 && leaves.length < 900 && Math.random() < 0.6){
+    // left or right
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const lx = centerX() + side * (60 + Math.random()*80);
+    const ly = centerY() - (20 + Math.random()*80);
+    // create cluster
+    for(let i=0;i<18;i++){
+      const px = lx + (Math.random()-0.5)*60;
+      const py = ly + (Math.random()-0.5)*40;
+      leaves.push(new Particle(px, py, `hsl(${110+Math.random()*30},60%,${30+Math.random()*10}%)`, 3 + Math.random()*4, (Math.random()-0.5)*0.2, (Math.random()-0.5)*0.2, 6 + Math.random()*4));
+    }
   }
 }
 
-/* ===================== SMALL PLANTS SPAWN AROUND PROGRESSIVELY ===================== */
-function spawnSmallPlant(cx, cy, scale=1){
-  // returns an object containing an array of particles (plant)
-  const plantParticles = [];
-  const nCenter = Math.floor(80 * scale);
-  const nLeaves = Math.floor(120 * scale);
-  const nRoots = Math.floor(50 * scale);
-  // center
-  for(let i=0;i<nCenter;i++){
+/* ========= Spawn a few small flowers distributed across screen (but few) ========= */
+let smallFlowersSpawned = false;
+function maybeSpawnSmallFlowers(){
+  if(smallFlowersSpawned) return;
+  // spawn 5 small flowers across different x positions and varied y near bottom half
+  const positions = 5;
+  for(let i=0;i<positions;i++){
+    const x = (0.12 + 0.76 * (i / (positions - 1))) * W + (Math.random()-0.5)*80;
+    const y = centerY() + (Math.random()*60 - 10) + (i%2 ? 20 : -10);
+    const scale = 0.6 + Math.random()*0.6;
+    spawnSmallFlower(x, y, scale);
+  }
+  smallFlowersSpawned = true;
+}
+
+/* ========= Turtle movement logic ========= */
+let turtleStarted = false;
+function startTurtle(){
+  if(turtleStarted) return;
+  turtleStarted = true;
+  turtle.visible = true;
+  turtle.x = centerX() + 20;
+  turtle.y = centerY() - 40;
+  moon.x = W * 0.85;
+  moon.y = H * 0.18;
+  moon.visible = true;
+  badge.style.display = 'inline-flex';
+}
+
+/* ========= Final explosion when turtle reaches moon ========= */
+let finalTriggered = false;
+function triggerFinalBurst(){
+  if(finalTriggered) return;
+  finalTriggered = true;
+  // explosion from moon and from center
+  for(let i=0;i<360;i++){
+    const angle = Math.random()*Math.PI*2;
+    const speed = 30 + Math.random()*90;
+    explosion.push(new Particle(moon.x + (Math.random()-0.5)*60, moon.y + (Math.random()-0.5)*60, `hsl(${Math.random()*360},90%,55%)`, 1 + Math.random()*3, Math.cos(angle)*speed, Math.sin(angle)*speed, 1.5 + Math.random()*2));
+  }
+  for(let i=0;i<500;i++){
     const ang = Math.random()*Math.PI*2;
-    const r = Math.sqrt(Math.random())*12*scale;
-    const px = cx + Math.cos(ang)*r;
-    const py = cy + Math.sin(ang)*r;
-    const hue = 40 + Math.random()*30;
-    plantParticles.push(new P(px,py, `hsl(${hue},95%,${45+Math.random()*10}%)`, 1 + Math.random()*1.2, (Math.random()-0.5)*0.2, -Math.random()*0.6, 2 + Math.random()*2));
+    const r = Math.sqrt(Math.random())*80;
+    const px = centerX() + Math.cos(ang)*r;
+    const py = centerY() - Math.sin(ang)*r*0.6;
+    explosion.push(new Particle(px, py, `hsl(${Math.random()*360},90%,55%)`, 1 + Math.random()*2.5, (Math.random()-0.5)*40, (Math.random()-0.5)*40, 1.8 + Math.random()*2.5));
   }
-  // leaves
-  for(let i=0;i<nLeaves;i++){
-    const px = cx + (Math.random()-0.5)*60*scale;
-    const py = cy - (Math.random()*80*scale);
-    plantParticles.push(new P(px,py, `hsl(${110+Math.random()*40},60%,${30+Math.random()*15}%)`, 1 + Math.random()*1.1, (Math.random()-0.5)*0.2, (Math.random()-0.3)*0.2, 2 + Math.random()*2));
-  }
-  // roots
-  for(let i=0;i<nRoots;i++){
-    const px = cx + (Math.random()-0.5)*40*scale;
-    const py = cy + Math.random()*30*scale;
-    plantParticles.push(new P(px,py, '#5a3e1b', 1 + Math.random()*1.1, (Math.random()-0.5)*0.2, -Math.random()*0.2, 1 + Math.random()*1.3));
-  }
-  smallPlants.push(plantParticles);
 }
 
-/* ===================== TURTLE (dot) THAT MOVES TO MOON ===================== */
-const turtle = { x: 0, y:0, radius:8, visible:false, vx:0, vy:0 };
-const moon = { x: null, y: null, r:36, visible:false };
-
-/* ===================== HELPER: draw stylized background (brush-like) ===================== */
-function drawBackground(frame, t){
-  // base deep gradient
+/* ========= Drawing background (painterly) ========= */
+function drawBackground(frame){
+  // gradient base
   const g = ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0, '#001633');
-  g.addColorStop(0.4, '#052a63');
-  g.addColorStop(1, '#08223a');
+  g.addColorStop(0, '#041433');
+  g.addColorStop(0.6, '#052a63');
+  g.addColorStop(1, '#07182b');
   ctx.fillStyle = g;
   ctx.fillRect(0,0,W,H);
 
-  // textured noise "pinceladas" (fast, not too many)
+  // subtle brush strokes
   const stripes = 28;
   for(let i=0;i<stripes;i++){
     const hue = 210 + Math.sin((frame+i*13)/120)*18;
-    ctx.fillStyle = `hsla(${hue},50%,${10 + (i%2)*6}%,${0.035 + Math.abs(Math.sin((frame+i*7)/140))*0.05})`;
+    ctx.fillStyle = `hsla(${hue},50%,${8 + (i%2?6:2)}%, ${0.03 + Math.abs(Math.sin((frame+i*7)/140))*0.04})`;
     const px = (i/stripes)*W + (Math.sin((frame+i*17)/100)*40);
-    ctx.fillRect(px, i*35 - 40, W/stripes + 40, 80);
+    ctx.fillRect(px, i*36 - 44, W/stripes + 60, 80);
   }
-
-  /* small twinkling stars using random seeded positions */
-  ctx.save();
-  for(let i=0;i<100;i++){
+  // some faint stars
+  ctx.globalAlpha = 0.45;
+  for(let i=0;i<70;i++){
     const sx = (i*73 % W) + (Math.sin((frame+i*11)/50)*6);
     const sy = (i*41 % (H*0.45)) + (Math.cos((frame+i*9)/40)*6);
-    const s = 0.5 + ((i%7)/7) * 2;
-    ctx.globalAlpha = 0.3 + Math.abs(Math.sin((frame+i)/100))*0.6;
-    ctx.fillStyle = `hsl(${50 + (i%10)}, 90%, ${70 - (i%4)*10}%)`;
+    const s = 0.5 + ((i%7)/7)*1.6;
+    ctx.fillStyle = `hsl(${45 + (i%10)}, 90%, ${72 - (i%4)*10}%)`;
     ctx.beginPath();
     ctx.arc(sx, sy, s, 0, Math.PI*2);
     ctx.fill();
   }
-  ctx.restore();
+  ctx.globalAlpha = 1;
 }
 
-/* ===================== DRAW FLOWER LAYERS ===================== */
-function drawParticles(list){
-  for(let i=list.length-1;i>=0;i--){
-    const p = list[i];
-    p.draw();
-    // if fully faded, remove
-    if(p.alpha <= 0.01) list.splice(i,1);
-  }
-}
+/* ========= Main loop ========= */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.04, (now - last)/1000); // clamp dt
+  last = now;
+  ctx.clearRect(0,0,W,H);
 
-/* ===================== MAIN ANIMATION LOOP ===================== */
-function step(now){
-  const dt = Math.min(0.033, (now - lastTime)/1000); // clamp dt
-  lastTime = now;
+  // draw background
+  drawBackground(now/40);
 
-  // time since start
-  const sinceStart = started ? (now - startTime) : 0;
-
-  // increment sparkleRate gradually to build intensity near end
-  if(started){
-    const elapsed = (now - startTime);
-    // ramp from 1 to 60 over entire run (estimate total ~60-90s)
-    const ramp = Math.min(1, elapsed / 70000); // 70s to max
-    sparkleRate = 1 + ramp * 80;
+  // growth and spawning
+  const elapsed = startTime ? (now - startTime) : 0;
+  if(startTime){
+    growMainFlower(dt, elapsed);
+    if(elapsed > 3500) maybeSpawnSmallFlowers();
   }
 
-  // background
-  drawBackground(now / 16, now);
+  // update all particle arrays
+  const lists = [stem, center, leaves, sparkles, hearts, explosion];
+  lists.forEach(list=>list.forEach(p=>p.update(dt)));
+  smallFlowers.forEach(f=>{
+    f.stem.forEach(p=>p.update(dt));
+    f.center.forEach(p=>p.update(dt));
+    f.leaves.forEach(p=>p.update(dt));
+    f.t += dt;
+  });
 
-  // spawn periodic sparkles (rate per second)
-  if(started){
-    const spawnCount = Math.floor(sparkleRate * dt * 1.2);
-    spawnSparkleBurst(spawnCount);
-  }
+  // remove faded ones (lightweight sweep)
+  function tidy(list){ for(let i=list.length-1;i>=0;i--){ if(list[i].alpha <= 0.01) list.splice(i,1); } }
+  tidy(sparkles); tidy(hearts); tidy(explosion);
+  // keep center/stem/leaves but they fade slowly, we clear only if alpha zero
+  tidy(center); tidy(stem); tidy(leaves);
 
-  // step all particles lists
-  const allLists = [sparkle, centerDots, leafDots, rootDots];
-  allLists.forEach(list => list.forEach(p => p.step(dt)));
+  // Draw order: small flowers (behind) -> stems -> leaves -> center -> sparkles -> turtle/ moon -> explosion
+  // small flowers (each)
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  smallFlowers.forEach(f=>{
+    f.stem.forEach(p=>p.draw());
+    f.leaves.forEach(p=>p.draw());
+    f.center.forEach(p=>p.draw());
+  });
 
-  // small plants step
-  smallPlants.forEach(plant => plant.forEach(p => p.step(dt)));
-
-  // hearts step
-  hearts.forEach(h=>h.step(dt));
-  hearts.forEach((h,i)=>{ if(h.alpha<=0.01) hearts.splice(i,1); });
-
-  // draw flower layers in a pleasing order
-  // roots -> leaves -> center -> sparkles -> smallPlants
-  ctx.save();
-  // slight blur/soft effect using composite
-  ctx.globalCompositeOperation = 'lighter';
-
-  drawParticles(rootDots);
-  drawParticles(leafDots);
-  drawParticles(centerDots);
-  drawParticles(sparkle);
-
-  // small plants (each is an array)
-  for(const plant of smallPlants){
-    plant.forEach(p=>p.draw());
-  }
-
-  // hearts
-  hearts.forEach(h=>h.draw());
-
+  // main stem
+  stem.forEach(p=>p.draw());
+  // leaves
+  leaves.forEach(p=>p.draw());
+  // center
+  center.forEach(p=>p.draw());
+  // sparkles (gold)
+  sparkles.forEach(p=>p.draw());
+  // hearts (turtle trail)
+  hearts.forEach(p=>p.draw());
   ctx.restore();
 
-  // draw a soft bigger "sunflower petals" ring (subtle)
-  if(started){
-    ctx.save();
-    ctx.globalAlpha = 0.12 + Math.min(0.6, Math.abs(Math.sin(now/900))*0.5);
-    ctx.fillStyle = 'rgba(255,200,60,0.6)';
-    ctx.beginPath();
-    ctx.ellipse(flowerX(), flowerY()-12, 140, 80, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  /* DRAW TEXT centered (but stylized) */
-  ctx.save();
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  // a decorative multi-shadow to look more 'headline'
-  ctx.font = '700 26px "Segoe UI", Arial';
-  // background subtle blurred rectangle behind text for readability
-  if(currentText < texts.length){
-    // rectangle
-    const tw = Math.min(W*0.9, 1000);
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(W/2 - tw/2, 40, tw, 56);
-    // multi-layer shadowed text effect
-    ctx.fillStyle = '#f3f3f3';
-    ctx.fillText(texts[currentText], W/2, 68);
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.font = '700 18px "Segoe UI", Arial';
-    ctx.fillText(`(${currentText+1}/${texts.length})`, W/2, 110);
-  }
-  ctx.restore();
-
-  /* TURTLE MOVEMENT: only becomes visible when currentText >= 5 (6th) */
-  if(currentText >= 5){
-    if(!turtle.visible){
-      // initialize turtle position near center/petals
-      turtle.x = flowerX() + 20;
-      turtle.y = flowerY() - 40;
-      turtle.visible = true;
-      // set moon target near top-right
-      moon.x = W * 0.85;
-      moon.y = H * 0.18;
-      moon.visible = true;
-      badge.style.display='inline-flex';
-      // spawn small indicator 'turtle' dot trail immediately
-      for(let i=0;i<6;i++){
-        hearts.push(new P(turtle.x - i*6, turtle.y + i*2, '#ff6b6b', 2, 0, 0, 0.6 + i*0.1));
-      }
-    }
-    // move turtle slowly toward moon (linear interpolation)
-    const dirx = moon.x - turtle.x;
-    const diry = moon.y - turtle.y;
-    const dist = Math.hypot(dirx, diry);
-    if(dist > 6){
-      const speed = 20 * (0.4 + Math.min(2.5, (sparkleRate/20))); // speed grows a bit with sparkle intensity
-      const stepX = (dirx / dist) * speed * dt;
-      const stepY = (diry / dist) * speed * dt;
-      turtle.x += stepX;
-      turtle.y += stepY;
-
-      // leave hearts/trail occasionally
-      if(Math.random() < 0.18){
-        hearts.push(new P(turtle.x + (Math.random()-0.5)*6, turtle.y + (Math.random()-0.5)*6, '#ff4d6d', 2 + Math.random()*1.5, (Math.random()-0.5)*10, -Math.random()*6, 1.0));
-      }
-    } else {
-      // arrived: trigger final victory sparkle (big burst)
-      if(!moon.arrived){
-        moon.arrived = true;
-        // big color burst
-        for(let i=0;i<400;i++){
-          explosion.push(new P(moon.x + (Math.random()-0.5)*100, moon.y + (Math.random()-0.5)*100, `hsl(${Math.random()*360},90%,55%)`, 1 + Math.random()*3, (Math.random()-0.5)*6, (Math.random()-0.5)*6, 1.8 + Math.random()*2));
-        }
-      }
-    }
-
-    // draw turtle (as green dot with shell ring)
-    ctx.save();
-    ctx.beginPath();
-    ctx.fillStyle = '#2ecc71';
-    ctx.arc(turtle.x, turtle.y, turtle.radius, 0, Math.PI*2);
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // draw moon if visible
+  // moon draw (if visible)
   if(moon.visible){
     ctx.save();
     ctx.beginPath();
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowBlur = 24;
+    ctx.fillStyle = '#fff';
+    ctx.shadowBlur = 22;
     ctx.shadowColor = 'rgba(255,255,255,0.9)';
     ctx.arc(moon.x, moon.y, moon.r, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
 
-  // draw explosion particles if any
-  explosion.forEach(p=>{ p.step(dt); p.draw(); });
-
-  /* advance text timer and spawn small plants over time */
-  if(started && !moon.arrived){
-    textTick += (now - (startTime + (currentText * TEXT_DURATION) || now));
-  }
-  // simpler robust text timer logic:
-  if(started){
-    const elapsed = now - startTime;
-    const newIndex = Math.floor(elapsed / TEXT_DURATION);
-    if(newIndex !== currentText){
-      // transition detection
-      // when moving to index 1..4 spawn additional small plants gradually
-      if(newIndex > currentText){
-        // spawn small plants around as we progress
-        const plantsToSpawn = Math.min(2, newIndex - currentText);
-        for(let i=0;i<plantsToSpawn;i++){
-          const px = flowerX() + (Math.random()-0.5)*(W*0.28);
-          const py = flowerY() + (Math.random()-0.3)*60 + 30;
-          const sc = 0.5 + Math.random()*0.9;
-          spawnSmallPlant(px,py,sc);
-        }
+  // turtle movement / draw
+  if(turtle.visible && !turtle.arrived){
+    // move toward moon slowly
+    const dx = moon.x - turtle.x;
+    const dy = moon.y - turtle.y;
+    const d = Math.hypot(dx,dy);
+    if(d > 6){
+      const speed = 20 * (1 + Math.min(2, (sparkles.length/120))); // speed scales moderately
+      const sx = (dx / d) * speed * dt;
+      const sy = (dy / d) * speed * dt;
+      turtle.x += sx; turtle.y += sy;
+      // leave a small heart trail occasionally
+      if(Math.random() < 0.14 && totalParticleCount() < particlesLimit){
+        hearts.push(new Particle(turtle.x + (Math.random()-0.5)*4, turtle.y + (Math.random()-0.5)*4, '#ff4d6d', 2 + Math.random()*1.6, (Math.random()-0.5)*8, -Math.random()*6, 0.9 + Math.random()*0.8));
       }
-      currentText = Math.min(newIndex, texts.length); // can equal texts.length when finished
-      // increase sparkle intensity a little with each text
-      sparkleRate = Math.min(200, sparkleRate + 6);
+    } else {
+      turtle.arrived = true;
+      // final trigger
+      triggerFinalBurst();
     }
+    // draw turtle (green dot)
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = '#2ecc71';
+    ctx.arc(turtle.x, turtle.y, turtle.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.stroke();
+    ctx.restore();
   }
 
-  // Step and draw small sparkles and heart arrays etc.
-  // step for sparkles done above, draw happens in drawParticles
+  // explosion draw & update (already updated above)
+  explosion.forEach(p=>p.draw());
 
-  // draw small UI overlays? none inside canvas.
+  // show texts: overlayed with overlap
+  if(startTime){
+    const tElapsed = now - startTime;
+    // show any text whose start time <= now < start+TEXT_DURATION
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 26px "Segoe UI", Arial';
+    // draw a translucent backdrop rectangle for readability
+    const boxW = Math.min(W*0.9, 1000);
+    const boxH = 64;
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(W/2 - boxW/2, 36, boxW, boxH);
 
-  lastTime = now;
-  requestAnimationFrame(step);
-}
-
-/* ===================== SPAWN HELPERS ===================== */
-function spawnSparkleBurst(n=1){
-  for(let i=0;i<n;i++){
-    const ang = Math.random()*Math.PI*2;
-    const rad = 40 + Math.random()*260 * Math.min(1, 1 + (sparkleRate/50));
-    const px = flowerX() + Math.cos(ang)*rad;
-    const py = flowerY() - Math.sin(ang)*rad*0.6 - Math.random()*30;
-    const hue = 40 + Math.random()*40;
-    const vx = (flowerX() - px) * (0.04 + Math.random()*0.04);
-    const vy = (flowerY() - py) * (0.04 + Math.random()*0.04) - (Math.random()*0.2);
-    sparkle.push(new P(px, py, `hsl(${hue},100%,60%)`, 0.9 + Math.random()*1.6, vx, vy, 0.6 + Math.random()*2.0));
+    for(let i=0;i<texts.length;i++){
+      const tStart = i * TEXT_STEP; // next text starts every TEXT_STEP ms
+      const tEnd = tStart + TEXT_DURATION;
+      if(tElapsed >= tStart && tElapsed <= tEnd){
+        // ease alpha depending on proximity to edges
+        let alpha = 1;
+        const fadeIn = Math.min(0.25, (tElapsed - tStart) / 400);
+        if(tElapsed - tStart < 600) alpha = Math.max(0.25, (tElapsed - tStart) / 600);
+        if(tEnd - tElapsed < 600) alpha = Math.max(0.25, (tEnd - tElapsed) / 600);
+        ctx.globalAlpha = alpha;
+        // white-ish text with slight shadow
+        ctx.fillStyle = '#eaeaea';
+        ctx.fillText(texts[i], W/2, 68);
+        ctx.globalAlpha = 1;
+      }
+    }
+    ctx.restore();
+  } else {
+    // initial prompt
+    ctx.save();
+    ctx.textAlign='center';
+    ctx.fillStyle='#ddd';
+    ctx.font='20px "Segoe UI"';
+    ctx.fillText('Pulsa "Presiona aquí 🌼" para iniciar', W/2, H*0.6);
+    ctx.restore();
   }
+
+  // when final explosion triggered, show final message centered
+  if(finalTriggered){
+    ctx.save();
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.font='700 44px "Segoe UI"';
+    // colorful shadow layers
+    for(let s=0;s<6;s++){
+      ctx.fillStyle = `hsla(${s*60 + (performance.now()%360)}, 90%, 60%, 0.08)`;
+      ctx.fillText('FIN. NO SERÁS ESPECTADORA', W/2 + (s-3)*2, H/2 + (s-3)*2);
+    }
+    ctx.fillStyle = '#fff';
+    ctx.fillText('FIN. NO SERÁS ESPECTADORA', W/2, H/2);
+    ctx.restore();
+  }
+
+  last = now;
+  requestAnimationFrame(loop);
 }
 
-/* ===================== INITIALIZE ON START ===================== */
-function startAnimation(){
-  if(started) return;
-  started = true;
+/* ========= Start animation (bound to click) ========= */
+function startAll(){
+  if(startTime) return;
   startTime = performance.now();
-  lastTime = startTime;
-
   // hide cover UI
   cover.style.display = 'none';
   audioNotice.style.display = 'none';
-
-  // play audio safely (user interacted)
-  bgMusic.play().catch(()=>{ /* ignore */ });
-
-  // spawn main flower (lots of dots)
-  spawnMainFlower();
-
-  // spawn initial subtle sparkles
-  for(let i=0;i<60;i++) spawnSparkleBurst(1);
-
-  // schedule gradual spawning of extra small plants over time automatically
-  // but we also spawn a few immediately
-  for(let i=0;i<3;i++){
-    const px = flowerX() + (Math.random()-0.5)*(W*0.22);
-    const py = flowerY() + 40 + (Math.random()*30);
-    spawnSmallPlant(px,py, 0.6 + Math.random()*0.8);
+  // play audio
+  bgMusic.currentTime = 0;
+  bgMusic.play().catch(()=>{ /* ignore if browser blocks until gesture */ });
+  // initial spawn
+  initMainFlower();
+  // spawn few initial sparkles
+  for(let i=0;i<80;i++){
+    const ang = Math.random()*Math.PI*2;
+    const rad = 40 + Math.random()*220;
+    const px = centerX() + Math.cos(ang)*rad;
+    const py = centerY() - Math.sin(ang)*rad*0.6 - Math.random()*20;
+    const hue = 40 + Math.random()*30;
+    const vx = (centerX() - px) * (0.02 + Math.random()*0.02);
+    const vy = (centerY() - py) * (0.02 + Math.random()*0.02);
+    sparkles.push(new Particle(px, py, `hsl(${hue},100%,55%)`, 0.9 + Math.random()*1.8, vx, vy, 0.9 + Math.random()*2.2));
   }
-
-  // start animation loop
-  requestAnimationFrame(step);
+  // schedule small flowers a bit later to avoid initial jump
+  setTimeout(()=> maybeSpawnSmallFlowers(), 1600);
+  // start loop
+  last = performance.now();
+  requestAnimationFrame(loop);
+  // also schedule turtle start to align with the 6th text timing:
+  const sixStart = 5 * TEXT_STEP; // the 6th text starts at index 5
+  setTimeout(()=> startTurtle(), sixStart + 600); // start turtle slightly after 6th appears
 }
 
-/* ===================== START BUTTON ===================== */
-startBtn.addEventListener('click', ()=>{
-  startAnimation();
-});
+/* ========= Trigger final when turtle arrives (we check arrival inside loop) ========= */
+/* already implemented in loop when turtle within small distance, it triggers triggerFinalBurst(); */
 
-/* Allow clicking on canvas to also start for mobile users */
-canvas.addEventListener('click', ()=>{
-  if(!started) startAnimation();
-});
+/* ========= Hook up UI ========= */
+startBtn.addEventListener('click', ()=> startAll());
+canvas.addEventListener('click', ()=> startAll());
 
-/* ===================== EXPOSE: optional quick debug spawn ===================== */
-window.__spawnSparkles = ()=> spawnSparkleBurst(20);
-
-/* ===================== start rendering background even before start to avoid white flash ===================== */
+/* ========= Allow pre-draw so it's not blank white ========= */
 (function preDraw(){
-  // draw a single static frame so page is not white
-  drawBackground(0,0);
-  ctx.font='22px "Segoe UI"';
-  ctx.fillStyle='#fff';
-  ctx.fillText('Pulsa para iniciar la animación', W/2, H/2 + 80);
+  drawBackground(0);
+  ctx.fillStyle = '#ddd';
+  ctx.font = '20px "Segoe UI"';
+  ctx.textAlign='center';
+  ctx.fillText('Pulsa "Presiona aquí 🌼" para iniciar', W/2, H*0.6);
 })();
+
 </script>
 </body>
 </html>
