@@ -65,61 +65,47 @@ class Particle{
 }
 
 let particles=[], hearts=[];
-function spawnHeart(x,y,size,color){hearts.push(new Particle(x,y,(Math.random()*2-1),(Math.random()*-1-0.5),size,color));}
-function spawnParticle(x,y,size,color){particles.push(new Particle(x,y,(Math.random()-0.5)*1,(Math.random()-0.5)*1,size,color));}
 
-let turtle={x:0,y:0,radius:8,visible:false, name:"Tortuga"};
-let moon={x:null,y:null,r:24,visible:false,arrived:false};
-
-let heartScale=0.1;
+let heartScale=0.06; // pequeño y fijo
 let lastTime=performance.now();
+
+let showLetters=false;
+
 function step(now){
   let dt=Math.min(0.033,(now-lastTime)/16);
   lastTime=now;
 
-  // fondo corazón pulsante
   ctx.clearRect(0,0,W,H);
-  heartScale+=0.002;
+
+  // dibujar corazón fijo
   for(let t=0;t<360;t+=4){
     let angle=(t*Math.PI/180);
     let x=W/2+16*heartScale*Math.pow(Math.sin(angle),3)*W/4;
     let y=H/2-(13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*heartScale*H/16;
     ctx.fillStyle="#ff4b6b";
     ctx.beginPath();
-    let pulse=2+Math.sin(now/200)*2;
-    ctx.arc(x,y,pulse,0,Math.PI*2);
+    ctx.arc(x,y,3,0,Math.PI*2);
     ctx.shadowColor="#ff77d2"; ctx.shadowBlur=15;
     ctx.fill();
   }
 
-  // partículas flotantes de fondo
-  if(Math.random()<0.5) spawnParticle(Math.random()*W,Math.random()*H,2,'#fff');
-
-  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt); particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
-  for(let i=hearts.length-1;i>=0;i--){hearts[i].step(dt); hearts[i].draw(); if(hearts[i].alpha<=0)hearts.splice(i,1);}
+  // dibujar letras N y B en el corazón
+  if(showLetters){
+    ctx.fillStyle="#fff"; ctx.font="bold 48px 'Segoe UI'"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText("N", W/2-80, H/2);
+    ctx.fillText("B", W/2+80, H/2);
+  }
 
   // dibujar texto
   ctx.save(); ctx.font='700 28px "Segoe UI"'; ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
   if(currentText<texts.length)ctx.fillText(texts[currentText],W/2,H*0.15);
   ctx.restore();
 
-  // texto 5 tortuga
-  if(currentText===4){
-    if(!turtle.visible){
-      turtle.visible=true; turtle.x=W/2; turtle.y=H/2; moon.x=W*0.85; moon.y=H*0.2; moon.visible=true;
-    }
-    let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>2){turtle.x+=dx*0.01; turtle.y+=dy*0.01;}
-    ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='white'; ctx.font='16px "Segoe UI"'; ctx.fillText(turtle.name,turtle.x+20,turtle.y-10); ctx.restore();
-    ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r,0,Math.PI*2); ctx.fill(); ctx.restore();
-  }
-
   // cuenta regresiva
   if(countdownStarted){
     countdownEl.style.display='block';
     countdownEl.textContent=countdown;
-    for(let i=0;i<2;i++){ spawnHeart(Math.random()*W,Math.random()*H,3+Math.random()*3,'#ff4b6b'); spawnParticle(Math.random()*W,Math.random()*H,2+Math.random()*2,'#fff'); }
+    if(Math.random()<0.5) particles.push(new Particle(Math.random()*W,Math.random()*H,(Math.random()-0.5),(Math.random()-0.5),2,'#fff'));
   }else countdownEl.style.display='none';
 
   // avance de textos
@@ -128,23 +114,25 @@ function step(now){
     let newIndex=Math.floor(elapsed/5000);
     if(newIndex!==currentText){
       currentText=Math.min(newIndex,texts.length);
-      if(currentText===texts.length){ startCountdown(); }
+      if(currentText===texts.length){ startCountdown(); showLetters=true; } // activar letras
     }
   }
 
   // congelar y mostrar final
   if(frozen){
     ctx.save();
-    ctx.font='50px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2);
-    ctx.font='36px "Segoe UI"'; ctx.fillStyle='white'; ctx.fillText('Byron and Nayeli Forever',W/2,H/2+60);
+    ctx.font='50px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2+60);
+    ctx.font='36px "Segoe UI"'; ctx.fillStyle='white'; ctx.fillText('Byron and Nayeli Forever',W/2,H/2+120);
     ctx.restore();
     repeatBtn.style.display='block';
+    showLetters=false; // desaparecen las letras
   }
 
+  // partículas
+  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt); particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
   requestAnimationFrame(step);
 }
 
-// iniciar animacion
 function startAnimation(){
   if(started) return;
   started=true; currentText=0; startTime=performance.now();
@@ -153,7 +141,6 @@ function startAnimation(){
   requestAnimationFrame(step);
 }
 
-// iniciar cuenta regresiva
 function startCountdown(){
   countdownStarted=true;
   countdown=5;
@@ -167,10 +154,8 @@ startBtn.addEventListener('click',startAnimation);
 canvas.addEventListener('click',()=>{ if(!started) startAnimation(); });
 
 repeatBtn.addEventListener('click',()=>{
-  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5; frozen=false;
-  turtle.visible=false; moon.visible=false; repeatBtn.style.display='none';
-  heartScale=0.1;
-  cover.style.display='flex';
+  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5; frozen=false; showLetters=false;
+  heartScale=0.06; currentText=0; cover.style.display='flex'; repeatBtn.style.display='none';
 });
 </script>
 </body>
