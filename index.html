@@ -3,287 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feliz 21 de Septiembre</title>
+<title>Animación Especial</title>
 <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background: #000;
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-    }
-    canvas {
-        display: block;
-    }
-    #startScreen {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #111, #222);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-    }
-    #title {
-        font-size: 3rem;
-        font-weight: bold;
-        text-shadow: 0 0 10px red, 0 0 20px yellow, 0 0 40px blue;
-        animation: blink 1.5s infinite alternate;
-    }
-    #subtitle {
-        font-size: 1.5rem;
-        margin-top: 10px;
-        color: #ccc;
-        text-shadow: 0 0 10px lime, 0 0 20px cyan;
-        animation: blink 2s infinite alternate;
-    }
-    #startBtn {
-        margin-top: 50px;
-        background: #FFD700;
-        color: #000;
-        padding: 20px 40px;
-        font-size: 2rem;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        box-shadow: 0 0 20px #FFD700;
-    }
-    @keyframes blink {
-        from {opacity: 0.6;}
-        to {opacity: 1;}
-    }
+  * {margin:0;padding:0;box-sizing:border-box;}
+  body {
+    background: radial-gradient(circle at center, #0b0f29, #000);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Portada */
+  #portada {
+    position: absolute;
+    top:0;left:0;right:0;bottom:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#020024,#090979,#00d4ff);
+    z-index: 10;
+    text-align:center;
+  }
+  #portada h1 {
+    font-size: 3em;
+    margin-bottom:20px;
+  }
+  #portada button {
+    padding: 10px 25px;
+    font-size: 1.2em;
+    border:none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    transition:0.3s;
+  }
+  #portada button:hover {background:#ff4081;color:#fff;}
+  #portada p {margin-top:20px;font-size:1.1em;}
+
+  canvas {
+    display:block;
+    width:100vw;
+    height:100vh;
+  }
+
+  /* Cronómetro */
+  #cronometro {
+    position: absolute;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:1.5em;
+    display:none;
+    z-index:5;
+  }
+
+  /* Textos */
+  .mensaje {
+    position: absolute;
+    width:100%;
+    text-align:center;
+    font-size:2em;
+    opacity:0;
+    animation: aparecer 2s forwards;
+  }
+  @keyframes aparecer {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
+  }
+
+  /* Mensaje final */
+  #final {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:3em;
+    color:#ff4081;
+    opacity:0;
+    z-index:6;
+  }
+
 </style>
 </head>
 <body>
+  <div id="portada">
+    <h1>🌙 Una sorpresa para ti 🌙</h1>
+    <button onclick="iniciar()">Comenzar</button>
+    <p>Presiona para iniciar la experiencia mágica</p>
+  </div>
 
-<div id="startScreen">
-    <div id="title">FELIZ 21 DE SEPTIEMBRE 🎉</div>
-    <button id="startBtn">Presione para empezar 🌼</button>
-    <div id="subtitle">Con mucho amor de este humilde servidor</div>
-</div>
-
-<canvas id="canvas"></canvas>
+  <div id="cronometro">00:00</div>
+  <canvas id="canvas"></canvas>
+  <div id="final">💖 TE AMO 💖</div>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let W = canvas.width = window.innerWidth;
-let H = canvas.height = window.innerHeight;
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-window.addEventListener('resize', ()=>{
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-});
-
-// ============= CRONÓMETRO =============
-let startTime = null;
-function drawTimer(frame){
-    if(!startTime) startTime = Date.now();
-    let elapsed = Math.floor((Date.now()-startTime)/1000);
-    ctx.fillStyle = "white";
-    ctx.font = "20px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText("⏱ " + elapsed + "s", 20, H-20);
-}
-
-// ============= FONDO Y ESTRELLAS =============
-let stars = [];
-for(let i=0;i<100;i++){
-    stars.push({
-        x: Math.random()*W,
-        y: Math.random()*H/2,
-        r: Math.random()*2+1,
-        alpha: Math.random()
-    });
-}
-
-function drawBackground(frame){
-    // fondo dinámico
-    let intensity = Math.min(1, frame/3000);
-    ctx.fillStyle = `rgba(0,10,30,${1})`;
-    ctx.fillRect(0,0,W,H);
-
-    stars.forEach(s=>{
-        s.alpha += (Math.random()-0.5)*0.05;
-        s.alpha = Math.max(0, Math.min(1, s.alpha));
-        ctx.globalAlpha = s.alpha*intensity;
-        ctx.fillStyle = "yellow";
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-        ctx.fill();
-    });
-    ctx.globalAlpha=1;
-
-    // Remolinos
-    for(let i=0;i<150*intensity;i++){
-        ctx.strokeStyle = `hsla(${200+Math.sin(frame/50+i)*40},100%,50%,0.1)`;
-        ctx.beginPath();
-        let x = (i*40+frame)%W;
-        let y = H/3 + Math.sin((i+frame/20))*50;
-        ctx.arc(x,y,30,0,Math.PI*2);
-        ctx.stroke();
-    }
-}
-
-// ============= FLOR PRINCIPAL =============
-function drawSunflower(frame){
-    let cx = W/2, cy = H*0.65;
-
-    // tallo
-    ctx.fillStyle="#4B2E2E";
-    ctx.fillRect(cx-10, cy, 20, 200);
-
-    // pétalos
-    let petalos = 20;
-    for(let i=0;i<petalos;i++){
-        let ang = (i/petalos)*Math.PI*2 + Math.sin(frame/30)/5;
-        let px = cx + Math.cos(ang)*90;
-        let py = cy + Math.sin(ang)*90;
-        ctx.beginPath();
-        ctx.fillStyle="gold";
-        ctx.ellipse(px, py, 30, 60, ang, 0, Math.PI*2);
-        ctx.fill();
-    }
-
-    // centro con chispas
-    let intensidad = Math.min(1, frame/3000);
-    for(let i=0;i<200;i++){
-        let ang = Math.random()*Math.PI*2;
-        let rad = Math.sqrt(Math.random())*40;
-        let x = cx + Math.cos(ang)*rad;
-        let y = cy + Math.sin(ang)*rad;
-        ctx.fillStyle = `hsla(${40+Math.random()*40},100%,${40+intensidad*60}%,${intensidad})`;
-        ctx.beginPath();
-        ctx.arc(x,y,2,0,Math.PI*2);
-        ctx.fill();
-    }
-
-    // hojas verdes
-    for(let i=0;i<30*intensidad;i++){
-        let ang = Math.random()*Math.PI*2;
-        let rad = 120+Math.random()*40;
-        let x = cx + Math.cos(ang)*rad;
-        let y = cy + Math.sin(ang)*rad;
-        ctx.fillStyle = `rgba(0,255,0,${0.3+0.7*Math.random()})`;
-        ctx.beginPath();
-        ctx.arc(x,y,3,0,Math.PI*2);
-        ctx.fill();
-    }
-}
-
-// ============= TORTUGA =============
-let turtle = {x: W/2, y: H, step:0, active:false};
-function drawTurtle(){
-    if(!turtle.active) return;
-    ctx.fillStyle = 'limegreen';
-    ctx.beginPath();
-    ctx.arc(turtle.x, turtle.y, 15, 0, Math.PI*2);
-    ctx.fill();
-}
-
-// ============= TEXTOS =============
-const texts = [
-    "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
-    "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
-    "“Si hago cosas no es para que me quieras, sino para que veas que te quiero” — Mario Benedetti",
-    "Si no es eterno, que sea inolvidable",
-    "Y fin colorado, este amor ha comenzado",
-    "¡Te amo de aquí a la Luna, a pasitos de tortuga!"
+let startTime;
+let interval;
+let mensajes = [
+  "Tu eres mi luz 🌟",
+  "Cada día contigo es un regalo 🎁",
+  "Nuestro amor florece 🌸",
+  "Hasta la luna y más allá 🌙"
 ];
-let currentText = 0;
-let textTimer = 0;
 
-// ============= PARTICULAS FINALES =============
-class Particle {
-    constructor(x,y,color){
-        this.x=x;this.y=y;
-        this.vx=(Math.random()-0.5)*6;
-        this.vy=(Math.random()-0.5)*6;
-        this.color=color;
-        this.size=Math.random()*4+2;
-        this.alpha=1;
-    }
-    update(){
-        this.x+=this.vx;
-        this.y+=this.vy;
-        this.alpha-=0.01;
-    }
-    draw(){
-        ctx.globalAlpha=this.alpha;
-        ctx.fillStyle=this.color;
-        ctx.beginPath();
-        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha=1;
-    }
-}
-let particles=[];
-
-// ============= ANIMACIÓN PRINCIPAL =============
-let frame=0;
-function animate(){
-    frame++;
-    ctx.clearRect(0,0,W,H);
-    drawBackground(frame);
-    drawSunflower(frame);
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    if(currentText<texts.length){
-        ctx.fillStyle = "white";
-        ctx.font = "40px Impact, sans-serif";
-        ctx.strokeStyle="black"; ctx.lineWidth=3;
-        ctx.strokeText(texts[currentText], W/2, 100);
-        ctx.fillText(texts[currentText], W/2, 100);
-
-        textTimer++;
-        if(textTimer>400){
-            currentText++;
-            textTimer=0;
-            if(currentText===5){turtle.active=true;} // tortuga aparece
-        }
-    } else {
-        // tortuga camina hacia luna
-        turtle.step++;
-        turtle.x = W/2 + (W*0.8 - W/2)*(turtle.step/600);
-        turtle.y = H*0.65 - (H*0.65 - H*0.2)*(turtle.step/600);
-        drawTurtle();
-
-        // luna
-        ctx.fillStyle="white";
-        ctx.beginPath();
-        ctx.arc(W*0.8,H*0.2,30,0,Math.PI*2);
-        ctx.fill();
-
-        // partículas
-        for(let i=0;i<10;i++){
-            particles.push(new Particle(W/2,H/2,`hsl(${Math.random()*360},100%,50%)`));
-        }
-        particles.forEach((p,i)=>{p.update();p.draw(); if(p.alpha<=0) particles.splice(i,1);});
-
-        if(turtle.step>600){
-            ctx.font="100px Impact";
-            ctx.fillStyle="magenta";
-            ctx.strokeStyle="white"; ctx.lineWidth=5;
-            ctx.strokeText("💖 TE AMO 💖", W/2, H/2);
-            ctx.fillText("💖 TE AMO 💖", W/2, H/2);
-        }
-    }
-
-    drawTimer(frame);
-    requestAnimationFrame(animate);
+function iniciar(){
+  document.getElementById('portada').style.display='none';
+  document.getElementById('cronometro').style.display='block';
+  startTime = Date.now();
+  interval = setInterval(actualizarCronometro,1000);
+  animar();
+  mostrarMensajes();
+  setTimeout(animarTortuga,15000);
+  setTimeout(explosionFinal,25000);
 }
 
-// ============= INICIO =============
-document.getElementById('startBtn').addEventListener('click', ()=>{
-    document.getElementById('startScreen').style.display="none";
-    animate();
-});
+function actualizarCronometro(){
+  let diff = Math.floor((Date.now()-startTime)/1000);
+  let min = String(Math.floor(diff/60)).padStart(2,'0');
+  let sec = String(diff%60).padStart(2,'0');
+  document.getElementById('cronometro').textContent = `${min}:${sec}`;
+}
+
+/* --- Partículas para flor --- */
+let particulas = [];
+
+class Particula {
+  constructor(x,y,color,velX,velY,tamano){
+    this.x=x;this.y=y;
+    this.color=color;
+    this.velX=velX;this.velY=velY;
+    this.tamano=tamano;
+  }
+  dibujar(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.tamano,0,Math.PI*2);
+    ctx.fillStyle=this.color;
+    ctx.fill();
+  }
+  actualizar(){
+    this.x+=this.velX;
+    this.y+=this.velY;
+    this.dibujar();
+  }
+}
+
+function crearTallo(){
+  let x=canvas.width/2;
+  let y=canvas.height;
+  particulas.push(new Particula(x,y,"brown",0,-2,3));
+}
+
+function crearFlorCentro(){
+  let x=canvas.width/2;
+  let y=canvas.height/2;
+  for(let i=0;i<40;i++){
+    let angle=Math.random()*2*Math.PI;
+    let speed=2*Math.random();
+    particulas.push(new Particula(x,y,"yellow",Math.cos(angle)*speed,Math.sin(angle)*speed,3));
+  }
+}
+
+function crearHojas(){
+  let x=canvas.width/2;
+  let y=canvas.height/2;
+  for(let i=0;i<50;i++){
+    let angle=Math.random()*2*Math.PI;
+    let speed=2+Math.random()*2;
+    particulas.push(new Particula(x,y,"green",Math.cos(angle)*speed,Math.sin(angle)*speed,4));
+  }
+}
+
+function animar(){
+  ctx.fillStyle="rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  particulas.forEach((p,i)=>{
+    p.actualizar();
+    if(p.x<0||p.x>canvas.width||p.y<0||p.y>canvas.height) particulas.splice(i,1);
+  });
+  if(Math.random()<0.2) crearTallo();
+  requestAnimationFrame(animar);
+  setTimeout(crearFlorCentro,5000);
+  setTimeout(crearHojas,8000);
+}
+
+/* --- Textos --- */
+function mostrarMensajes(){
+  mensajes.forEach((txt,i)=>{
+    setTimeout(()=>{
+      let d=document.createElement('div');
+      d.className="mensaje";
+      d.textContent=txt;
+      d.style.top=`${30+ i*15}%`;
+      document.body.appendChild(d);
+    }, (i+1)*4000);
+  });
+}
+
+/* --- Tortuga --- */
+function animarTortuga(){
+  let x=50,y=canvas.height-50;
+  let lunaX=canvas.width-100,lunaY=100;
+  let paso=0;
+  function mover(){
+    ctx.fillStyle="rgba(0,0,0,0.2)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+    ctx.arc(lunaX,lunaY,50,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+    ctx.fillStyle="green";
+    ctx.fillRect(x,y,40,20);
+    x += (lunaX-x)/100;
+    y += (lunaY-y)/100;
+    paso++;
+    if(paso<200) requestAnimationFrame(mover);
+  }
+  mover();
+}
+
+/* --- Final --- */
+function explosionFinal(){
+  for(let i=0;i<200;i++){
+    let x=canvas.width/2,y=canvas.height/2;
+    let angle=Math.random()*2*Math.PI;
+    let speed=3+Math.random()*3;
+    let color=`hsl(${Math.random()*360},100%,50%)`;
+    particulas.push(new Particula(x,y,color,Math.cos(angle)*speed,Math.sin(angle)*speed,3));
+  }
+  let final=document.getElementById('final');
+  final.style.opacity=1;
+}
 </script>
 </body>
 </html>
