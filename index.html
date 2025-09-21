@@ -45,6 +45,9 @@ let startTime = 0;
 let lastTime = 0;
 let countdownActive = false;
 let countdownValue = 5;
+let explode = false;
+let particles = [];
+let heartExplosion = 0; // efecto de explosión
 
 const texts=[
 "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
@@ -60,7 +63,7 @@ let moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
 let turtleTrail=[];
 
 function drawHeart(scale,time){
-  let pulse = 0.05*Math.sin(time/300);
+  let pulse = 0.05*Math.sin(time/300) + heartExplosion;
   for(let t=0;t<360;t+=2){
     let angle = t*Math.PI/180;
     let x = W/2 + (16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
@@ -75,12 +78,46 @@ function drawHeart(scale,time){
 function drawTurtleTrail(){
   turtleTrail.forEach(p=>{
     ctx.fillStyle=p.color;
+    ctx.globalAlpha = p.alpha;
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
     ctx.fill();
     p.radius*=0.95;
+    p.alpha*=0.92;
   });
   turtleTrail = turtleTrail.filter(p=>p.radius>0.5);
+  ctx.globalAlpha=1;
+}
+
+function explodeParticles(){
+  particles.forEach(p=>{
+    ctx.fillStyle=p.color;
+    ctx.globalAlpha=p.alpha;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+    ctx.fill();
+    p.x += p.vx; p.y += p.vy;
+    p.radius *= 0.95; p.alpha *= 0.92;
+  });
+  particles = particles.filter(p=>p.alpha>0.05);
+  ctx.globalAlpha=1;
+}
+
+function createExplosion(){
+  for(let i=0;i<200;i++){
+    let angle = Math.random()*2*Math.PI;
+    let speed = 2+Math.random()*5;
+    particles.push({
+      x:W/2,
+      y:H/2,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      radius:3+Math.random()*3,
+      alpha:1,
+      color: ['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)]
+    });
+  }
+  explode=true;
 }
 
 function step(now){
@@ -88,7 +125,12 @@ function step(now){
   lastTime = now;
   ctx.clearRect(0,0,W,H);
 
-  heartScale += 0.004;
+  // Zoom suave del corazón
+  heartScale += 0.003 + 0.002*Math.sin(now/1000);
+
+  // Si explode, aumenta el efecto de expansión
+  if(explode && heartExplosion<0.5) heartExplosion +=0.01;
+
   drawHeart(heartScale,now);
 
   // Texto
@@ -99,7 +141,17 @@ function step(now){
   if(currentText===4 && !turtle.visible){ turtle.visible=true; moon.visible=true; }
   if(turtle.visible){
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>5){ turtle.x += dx*0.02; turtle.y += dy*0.02; turtleTrail.push({x:turtle.x,y:turtle.y,radius:4+Math.random()*2,color:['#ff4b6b','#ff77d2','#ffd700'][Math.floor(Math.random()*3)]}); }
+    if(dist>5){ 
+      turtle.x += dx*0.02; 
+      turtle.y += dy*0.02; 
+      turtleTrail.push({
+        x:turtle.x,
+        y:turtle.y,
+        radius:4+Math.random()*3,
+        alpha:0.8,
+        color:['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)]
+      }); 
+    }
     drawTurtleTrail();
     ctx.fillStyle="#2ecc71"; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.radius,0,Math.PI*2); ctx.fill();
     ctx.fillStyle="#fff"; ctx.font="14px 'Segoe UI'"; ctx.fillText("Tortuga",turtle.x-20,turtle.y-20);
@@ -115,7 +167,7 @@ function step(now){
       countdownValue=5; 
       let interval=setInterval(()=>{
         countdownValue--; 
-        if(countdownValue<=0){ clearInterval(interval); } 
+        if(countdownValue<=0){ clearInterval(interval); createExplosion(); } 
       },1000);
     }
   }
@@ -125,10 +177,12 @@ function step(now){
   }
 
   if(countdownActive && countdownValue<=0){
+    if(explode) explodeParticles();
+    drawHeart(heartScale,now); // corazón explota visualmente
     ctx.fillStyle="#ff77d2"; ctx.font="900 48px 'Segoe UI'"; ctx.fillText("Te amo. No son rosas pero es algo mucho más hermoso",W/2,H*0.6);
     ctx.font="700 36px 'Segoe UI'"; ctx.fillText("Byron and Nayeli Forever",W/2,H*0.7);
     repeatBtn.style.display="block";
-    return; // se congela aquí
+    return; // congelado
   }
 
   requestAnimationFrame(step);
@@ -143,7 +197,7 @@ startBtn.addEventListener('click',()=>{
 
 repeatBtn.addEventListener('click',()=>{
   repeatBtn.style.display="none";
-  heartScale=0.4; currentText=0; countdownActive=false;
+  heartScale=0.4; currentText=0; countdownActive=false; explode=false; heartExplosion=0; particles=[];
   turtle={x:W/2,y:H/2,radius:8,visible:false};
   moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
   turtleTrail=[]; startTime=performance.now();
