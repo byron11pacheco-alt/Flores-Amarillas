@@ -3,43 +3,97 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Feliz 21 de Septiembre — Animación (versión central)</title>
+<title>Feliz 21 de Septiembre — Animación</title>
 <style>
   :root{
     --accent1:#ffd700;
     --accent2:#ff6b6b;
     --text-gray:#ddd;
   }
-  html,body{ height:100%; margin:0; background:#050814; font-family: "Segoe UI", Roboto, Arial, sans-serif; overflow:hidden; }
-  canvas { display:block; width:100vw; height:100vh; background:transparent; }
-  #ui { position:absolute; z-index:20; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  html,body{
+    height:100%;
+    margin:0;
+    background:#050814;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    overflow:hidden;
+  }
+  canvas { display:block; width:100vw; height:100vh; }
+  #ui {
+    position:absolute;
+    z-index:20;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    flex-direction: column;
+  }
   .cover { pointer-events:auto; text-align:center; }
-  .title { font-size:48px; margin:0 0 6px 0; padding:6px 12px; display:inline-block; letter-spacing:1px; font-weight:800; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6)); background: linear-gradient(90deg, #ff77d2, #ffd700, #5ee3b3, #7fb3ff); -webkit-background-clip:text; background-clip:text; color:transparent; animation: glow 2s ease-in-out infinite alternate; }
-  .subtitle { font-size:20px; color:var(--accent2); display:block; margin-bottom:18px; text-shadow:0 2px 8px rgba(0,0,0,0.6); }
-  @keyframes glow{ from { filter: drop-shadow(0 0 6px rgba(255,120,200,0.6)) saturate(1.1) blur(0px); transform:translateY(-2px) rotate(-0.5deg); } to { filter: drop-shadow(0 0 18px rgba(255,220,50,0.95)) saturate(1.4) blur(0px); transform:translateY(2px) rotate(0.5deg); } }
-  #startBtn{ pointer-events:auto; margin-top:10px; background:linear-gradient(180deg,#fff176,#ffb300); border:0; padding:14px 30px; border-radius:30px; font-size:20px; cursor:pointer; box-shadow:0 8px 30px rgba(0,0,0,0.45); transition:transform .15s ease; }
+  .title {
+    font-size:48px;
+    line-height:1;
+    margin:0 0 6px 0;
+    padding:6px 12px;
+    display:inline-block;
+    color: #ff77d2;
+    letter-spacing:1px;
+    font-weight:800;
+    text-transform:none;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
+    background: linear-gradient(90deg, #ff77d2, #ffd700, #5ee3b3, #7fb3ff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  .subtitle {
+    font-size:20px;
+    color:var(--accent2);
+    display:block;
+    margin-bottom:18px;
+    text-shadow:0 2px 8px rgba(0,0,0,0.6);
+  }
+  @keyframes glow{
+    from { filter: drop-shadow(0 0 6px rgba(255,120,200,0.6)) saturate(1.1) blur(0px); transform:translateY(-2px) rotate(-0.5deg); }
+    to   { filter: drop-shadow(0 0 18px rgba(255,220,50,0.95)) saturate(1.4) blur(0px); transform:translateY(2px) rotate(0.5deg); }
+  }
+  #startBtn{
+    pointer-events:auto;
+    margin-top:10px;
+    background:linear-gradient(180deg,#fff176,#ffb300);
+    border:0;
+    padding:14px 30px;
+    border-radius:30px;
+    font-size:20px;
+    cursor:pointer;
+    box-shadow:0 8px 30px rgba(0,0,0,0.45);
+    transition:transform .15s ease;
+  }
   #startBtn:active{ transform:scale(.98) }
-  .badge { position:absolute; z-index:22; left:10px; top:10px; pointer-events:none; color:var(--text-gray); font-weight:700; text-shadow:0 2px 6px rgba(0,0,0,.7); display:inline-flex; gap:8px; align-items:center; font-size:14px; }
-  .badge .dot{ width:16px;height:16px;border-radius:50%; }
-  #audioNotice { position: absolute; bottom:12px; left:12px; color:#999; font-size:12px; z-index:21; }
-  /* countdown style overlay */
-  .countdownBox {
-    position: absolute;
+  #countdown{
+    position:absolute;
+    top:10px;
+    right:10px;
+    font-size:36px;
+    color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,0.8);
+    z-index:25;
+    display:none;
+  }
+  #repeatBtn{
+    position:absolute;
     top:50%;
     left:50%;
-    transform: translate(-50%,-50%);
-    z-index:25;
-    pointer-events:none;
-    text-align:center;
-    font-weight:900;
-    text-shadow:0 6px 20px rgba(0,0,0,0.7);
-  }
-  .countdownBox .num { font-size:96px; color: #fff; -webkit-background-clip:text; background-clip:text; color:transparent; background: linear-gradient(180deg,#fff, #ffd17a); }
-  .finalText {
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:26; pointer-events:none;
-    font-weight:900; font-size:48px; text-align:center; color:transparent; -webkit-background-clip:text; background-clip:text;
-    background: linear-gradient(90deg,#ff77d2,#ffd700,#7fb3ff); filter: drop-shadow(0 10px 30px rgba(0,0,0,0.7));
-    opacity:0;
+    transform:translate(-50%,-50%);
+    padding:16px 32px;
+    font-size:24px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    background:linear-gradient(180deg,#ff6b6b,#ff77d2);
+    color:white;
+    display:none;
+    z-index:30;
   }
 </style>
 </head>
@@ -53,364 +107,230 @@
   </div>
 </div>
 
-<div class="badge" id="badge" style="display:none;">
-  <div class="dot" style="background:#2ecc71; box-shadow:0 0 8px rgba(46,204,113,.6)"></div> Tortuga
-  <div style="width:18px"></div>
-  <div class="dot" style="background:#fff; box-shadow:0 0 10px rgba(255,255,255,.8)"></div> Luna
-</div>
-
-<div id="audioNotice">Pulsa para iniciar audio y animación</div>
-
-<div class="countdownBox" id="countdown" style="display:none;">
-  <div class="num" id="countNum">10</div>
-</div>
-
-<div class="finalText" id="finalText">Fin... No serás espectadora</div>
+<div id="countdown"></div>
+<button id="repeatBtn">Repetir</button>
 
 <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" preload="auto"></audio>
 <canvas id="c"></canvas>
 
 <script>
-/* ---------- Setup ---------- */
 const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d', { alpha: true });
+const ctx = canvas.getContext('2d', { alpha:false });
 let W = canvas.width = innerWidth;
 let H = canvas.height = innerHeight;
-addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+window.addEventListener('resize', ()=>{ W=canvas.width=innerWidth; H=canvas.height=innerHeight; });
 
 const startBtn = document.getElementById('startBtn');
 const cover = document.getElementById('cover');
 const bgMusic = document.getElementById('bgMusic');
-const badge = document.getElementById('badge');
-const audioNotice = document.getElementById('audioNotice');
-const countdownBox = document.getElementById('countdown');
-const countNum = document.getElementById('countNum');
-const finalTextEl = document.getElementById('finalText');
+const countdownEl = document.getElementById('countdown');
+const repeatBtn = document.getElementById('repeatBtn');
 
-/* ---------- Particle / helper ---------- */
 class P {
-  constructor(x,y,color,size,vx=0,vy=0,life=Infinity){
+  constructor(x,y,color,size,vx,vy,life=Infinity){
     this.x=x; this.y=y; this.color=color; this.size=size; this.vx=vx; this.vy=vy;
     this.life=life; this.age=0; this.alpha=1;
   }
   step(dt){
     this.age += dt;
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
-    if(this.age>this.life) this.alpha = Math.max(0, 1 - (this.age - this.life)/1.5);
+    this.x += this.vx*dt;
+    this.y += this.vy*dt;
+    if(this.age>this.life) this.alpha=Math.max(0,1-(this.age-this.life)/1.5);
   }
   draw(){
-    ctx.globalAlpha = Math.max(0, this.alpha);
-    ctx.fillStyle = this.color;
+    ctx.globalAlpha=this.alpha;
+    ctx.fillStyle=this.color;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI*2);
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
     ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha=1;
   }
 }
 
-/* ---------- State ---------- */
-let started = false;
-let startTime = 0;
-let lastTime = performance.now();
-
-const texts = [
+// --- SYSTEM ARRAYS ---
+let sparkle=[],centerDots=[],leafDots=[],rootDots=[],smallPlants=[],explosion=[],hearts=[];
+let texts=[
   "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
   "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
-  "“Si hago cosas no es para que me quieras, sino para que veas que te quiero” — Mario Benedetti",
+  "“Si hago cosas no es para que me quieras, sino para que veas que te quiero” Mario Benedetti",
   "Si no es eterno, que sea inolvidable",
-  "Y fin colorado, este amor ha comenzado",
-  "Fin... No serás espectadora"
+  "Te amo de aquí a la Luna, a pasitos de tortuga.",
+  "Y fin colorado, este amor ha comenzado..."
 ];
-let currentText = 0;
-const TEXT_DURATION = 10_000; // ms cada texto
-let explosionTriggered = false;
-let explosionParticles = [];
-let ashes = [];
-let teAmoOpacity = 0;
-let teAmoTimer = 0;
+let currentText=0, startTime=null, started=false;
+let turtle={x:0,y:0,radius:6,visible:false},moon={x:null,y:null,r:24,visible:false,arrived:false};
+let countdown=5, countdownStarted=false;
 
-/* ---------- Central flower (single) ---------- */
-const center = { x: ()=> W/2, y: ()=> H*0.55 };
-let flowerCenterDots = [];
-let flowerPetals = [];
-let sparkles = [];
+// flower center
+const flowerX=()=>W/2;
+const flowerY=()=>H*0.66;
 
-/* Crea flor central: petalos + centro */
-function spawnCentralFlower(){
-  flowerCenterDots = [];
-  flowerPetals = [];
-  // centro
-  for(let i=0;i<600;i++){
-    const ang = Math.random()*Math.PI*2;
-    const r = Math.sqrt(Math.random())*36;
-    const px = center.x() + Math.cos(ang)*r;
-    const py = center.y() + Math.sin(ang)*r*0.6;
-    const hue = 30 + Math.random()*40;
-    flowerCenterDots.push(new P(px,py, `hsl(${hue},95%,${40+Math.random()*15}%)`, 1 + Math.random()*1.5, (Math.random()-0.5)*0.2, (Math.random()-0.5)*0.2, 6 + Math.random()*5));
+// --- SPAWN MAIN FLOWER ---
+function spawnMainFlower(){
+  rootDots=[]; leafDots=[]; centerDots=[];
+  for(let i=0;i<400;i++){
+    const px=flowerX()+(Math.random()-0.5)*120;
+    const py=flowerY()+30+Math.random()*80;
+    rootDots.push(new P(px,py,'#6b3b1a',2,(Math.random()-0.5)*6,-10-Math.random()*40,1.5+Math.random()*2));
   }
-  // petalos (más grandes, menos cantidad)
-  for(let i=0;i<140;i++){
-    const ang = (i/140) * Math.PI*2 + (Math.random()-0.5)*0.08;
-    const r = 70 + Math.random()*40;
-    const px = center.x() + Math.cos(ang)*r;
-    const py = center.y() + Math.sin(ang)*r*0.7;
-    const hue = 320 + Math.random()*60;
-    flowerPetals.push(new P(px,py, `hsl(${hue%360},80%,${40+Math.random()*15}%)`, 2.5 + Math.random()*3, (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, 8 + Math.random()*6));
+  for(let i=0;i<700;i++){
+    const px=flowerX()+(Math.random()-0.5)*260;
+    const py=flowerY()-(Math.random()*160);
+    leafDots.push(new P(px,py,`hsl(${120+Math.random()*40},60%,${30+Math.random()*20}%)`,2+Math.random()*2,(Math.random()-0.5)*1.2,(Math.random()-0.15)*0.2,2+Math.random()*3));
   }
-  // subtle sparkles around
-  for(let i=0;i<60;i++){
-    const ang = Math.random()*Math.PI*2;
-    const rad = 120 + Math.random()*90;
-    const px = center.x() + Math.cos(ang)*rad;
-    const py = center.y() + Math.sin(ang)*rad*0.6 - Math.random()*20;
-    const hue = 30 + Math.random()*340;
-    sparkles.push(new P(px,py, `hsl(${hue},90%,60%)`, 0.9 + Math.random()*1.6, (center.x()-px)*0.02, (center.y()-py)*0.02, 2 + Math.random()*3));
+  for(let i=0;i<1500;i++){
+    const ang=Math.random()*Math.PI*2;
+    const r=Math.sqrt(Math.random())*50;
+    const px=flowerX()+Math.cos(ang)*r;
+    const py=flowerY()-Math.sin(ang)*r*0.7;
+    const hue=40+Math.random()*30;
+    centerDots.push(new P(px,py,`hsl(${hue},95%,${45+Math.random()*12}%)`,1+Math.random()*1.8,(Math.random()-0.5)*0.3,(Math.random()-0.5)*0.3,3+Math.random()*3));
   }
 }
 
-/* ---------- Explosion ---------- */
-function triggerExplosion(){
-  if(explosionTriggered) return;
-  explosionTriggered = true;
-  // generar muchos partículas coloridas desde el centro
-  for(let i=0;i<800;i++){
-    const ang = Math.random()*Math.PI*2;
-    const speed = 80 + Math.random()*240;
-    explosionParticles.push(new P(center.x(), center.y(), `hsl(${Math.random()*360},100%,60%)`, 1 + Math.random()*3, Math.cos(ang)*speed, Math.sin(ang)*speed, 1.4 + Math.random()*1.6));
-  }
-  // generar cenizas que aparecen después de explosión
-  setTimeout(()=> {
-    for(let i=0;i<220;i++){
-      const x = center.x() + (Math.random()-0.5)*300;
-      const y = center.y() + (Math.random()-0.5)*180;
-      ashes.push(new P(x, y, `rgba(90,90,90,0.95)`, 0.8 + Math.random()*1.8, (Math.random()-0.5)*10, -Math.random()*20, 2 + Math.random()*3));
-    }
-    // iniciar aparición "Te amo" poco después
-    setTimeout(()=> { teAmoTimer = 0.001; }, 900);
-  }, 400);
-}
-
-/* ---------- Draw background ---------- */
+// --- DRAW BACKGROUND ---
 function drawBackground(frame){
-  const g = ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0, '#001633');
-  g.addColorStop(0.4, '#052a63');
-  g.addColorStop(1, '#08223a');
-  ctx.fillStyle = g;
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#001633');
+  g.addColorStop(0.4,'#052a63');
+  g.addColorStop(1,'#08223a');
+  ctx.fillStyle=g;
   ctx.fillRect(0,0,W,H);
-
-  // soft brushed stripes
-  const stripes = 20;
-  for(let i=0;i<stripes;i++){
-    ctx.globalAlpha = 0.04 + Math.abs(Math.sin((frame+i*7)/120))*0.06;
-    ctx.fillStyle = `hsla(${200 + (i%6)*8},40%,${12 + (i%2)*6}%,1)`;
-    const px = (i/stripes)*W + Math.sin((frame+i*13)/100)*18;
-    ctx.fillRect(px, i*40 - 40, W/stripes + 40, 80);
-  }
-  ctx.globalAlpha = 1;
-}
-
-/* ---------- Text drawing with movement and extra shine ---------- */
-function drawMovingText(now){
-  if(currentText >= texts.length) return;
-  const s = texts[currentText];
-  // vertical offset varies with index and sin for movement
-  const baseY = 80 + (currentText % 3) * 40;
-  const sway = Math.sin(now/600 + currentText*1.7) * 18;
+  // stars
   ctx.save();
-  const tw = Math.min(W*0.9, 1100);
-  // background rect
-  ctx.fillStyle = 'rgba(0,0,0,0.28)';
-  ctx.fillRect(W/2 - tw/2, baseY - 20 + sway, tw, 72);
-  // main shining text
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '700 28px "Segoe UI", Arial';
-  // dynamic gradient for shine
-  const grad = ctx.createLinearGradient(W/2 - tw/2, 0, W/2 + tw/2, 0);
-  grad.addColorStop(0, '#ff77d2');
-  grad.addColorStop(0.45, '#ffd700');
-  grad.addColorStop(0.7, '#7fffd4');
-  grad.addColorStop(1, '#7fb3ff');
-  ctx.fillStyle = grad;
-  // slight pulsate for brightness
-  const pulse = 0.8 + 0.2 * Math.abs(Math.sin(now/350));
-  ctx.globalAlpha = pulse;
-  ctx.fillText(s, W/2, baseY + 18 + sway);
-  // small index
-  ctx.globalAlpha = 1;
-  ctx.font = '600 14px "Segoe UI", Arial';
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillText(`(${Math.min(currentText+1, texts.length)}/${texts.length})`, W/2, baseY + 62 + sway);
+  for(let i=0;i<100;i++){
+    const sx=(i*73 % W)+(Math.sin((frame+i*11)/50)*6);
+    const sy=(i*41 % (H*0.45))+(Math.cos((frame+i*9)/40)*6);
+    const s=0.5+((i%7)/7)*2;
+    ctx.globalAlpha=0.3+Math.abs(Math.sin((frame+i)/100))*0.6;
+    ctx.fillStyle=`hsl(${50+(i%10)},90%,${70-(i%4)*10}%)`;
+    ctx.beginPath();
+    ctx.arc(sx,sy,s,0,Math.PI*2);
+    ctx.fill();
+  }
   ctx.restore();
 }
 
-/* ---------- Main loop ---------- */
+// --- DRAW PARTICLES ---
+function drawParticles(list){ for(let i=list.length-1;i>=0;i--){ const p=list[i]; p.draw(); if(p.alpha<=0.01) list.splice(i,1);} }
+
+// --- SPAWN SPARKLES ---
+function spawnSparkleBurst(n=1){
+  for(let i=0;i<n;i++){
+    const ang=Math.random()*Math.PI*2;
+    const rad=40+Math.random()*260;
+    const px=flowerX()+Math.cos(ang)*rad;
+    const py=flowerY()-Math.sin(ang)*rad*0.6-Math.random()*30;
+    const hue=40+Math.random()*40;
+    const vx=(flowerX()-px)*(0.04+Math.random()*0.04);
+    const vy=(flowerY()-py)*(0.04+Math.random()*0.04)-(Math.random()*0.2);
+    sparkle.push(new P(px,py,`hsl(${hue},100%,60%)`,0.9+Math.random()*1.6,vx,vy,0.6+Math.random()*2.0));
+  }
+}
+
+// --- MAIN STEP ---
+let lastTime=performance.now();
 function step(now){
-  const dt = Math.min(0.033, (now - lastTime)/1000);
-  lastTime = now;
-  if(!started){ // pre-draw idle background
-    drawBackground(now/16);
-    ctx.font='22px "Segoe UI"';
-    ctx.fillStyle='#fff';
-    ctx.textAlign='center';
-    ctx.fillText('Pulsa para iniciar la animación', W/2, H/2 + 80);
-    requestAnimationFrame(step);
-    return;
-  }
-
-  // background and flower base
+  const dt=Math.min(0.033,(now-lastTime)/1000);
+  lastTime=now;
   drawBackground(now/16);
+  if(started){
+    spawnSparkleBurst(1);
+    [sparkle,centerDots,leafDots,rootDots].forEach(arr=>arr.forEach(p=>p.step(dt)));
+    smallPlants.forEach(arr=>arr.forEach(p=>p.step(dt)));
+    hearts.forEach(h=>{h.step(dt); if(h.alpha<=0.01) hearts.splice(hearts.indexOf(h),1)});
+  }
+  // draw layers
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  drawParticles(rootDots); drawParticles(leafDots); drawParticles(centerDots); drawParticles(sparkle);
+  smallPlants.forEach(arr=>arr.forEach(p=>p.draw()));
+  hearts.forEach(h=>h.draw());
+  ctx.restore();
 
-  // move and draw central flower (petals + center)
-  // small breathing motion
-  const breath = 1 + Math.sin(now/600) * 0.03;
-  for(const p of flowerPetals){ p.step(dt * 0.4); p.draw(); }
-  for(const p of flowerCenterDots){ p.step(dt * 0.4); p.draw(); }
-  // sparkles
-  for(const s of sparkles){ s.step(dt); s.draw(); }
+  // draw text
+  ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='700 26px "Segoe UI", Arial';
+  if(currentText<texts.length){
+    ctx.fillStyle='#f3f3f3';
+    ctx.fillText(texts[currentText],W/2,H*0.15);
+  }
+  ctx.restore();
 
-  // explosion particles
-  for(let i=explosionParticles.length-1;i>=0;i--){
-    const p = explosionParticles[i];
-    p.step(dt);
-    // add slight gravity and drag
-    p.vy += 60 * dt;
-    p.vx *= 0.995;
-    p.vy *= 0.995;
-    p.draw();
-    if(p.alpha <= 0.01) explosionParticles.splice(i,1);
+  // special tortuga/luna
+  if(currentText===4){ // fifth text
+    if(!turtle.visible){ turtle.x=W/2; turtle.y=H*0.15; turtle.visible=true; moon.x=W*0.9; moon.y=H*0.15; moon.visible=true; }
+    const dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
+    if(dist>2){ turtle.x+=dx*0.01; turtle.y+=dy*0.01; }
+    ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,6,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,24,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
 
-  // ashes
-  for(let i=ashes.length-1;i>=0;i--){
-    const a = ashes[i];
-    a.step(dt);
-    a.vy += 20 * dt;
-    a.draw();
-    if(a.alpha <= 0.01) ashes.splice(i,1);
+  // advance text timing
+  if(started && !countdownStarted){
+    const elapsed=(now-startTime);
+    const newIndex=Math.floor(elapsed/5000); // cada texto 5s
+    if(newIndex!==currentText){
+      currentText=Math.min(newIndex,texts.length);
+      if(currentText===texts.length){ startCountdown(); }
+    }
   }
 
-  // draw "Te amo" from ashes when timer active
-  if(teAmoTimer > 0){
-    teAmoTimer += dt;
-    teAmoOpacity = Math.min(1, teAmoTimer / 2.2);
+  // countdown
+  if(countdownStarted){
+    countdownEl.style.display='block';
+    countdownEl.textContent=countdown;
+  }else{ countdownEl.style.display='none'; }
+
+  // explosion at zero
+  if(countdown===0){
     ctx.save();
-    ctx.globalAlpha = teAmoOpacity;
-    ctx.font = '900 56px "Segoe UI", Arial';
-    ctx.textAlign = 'center';
-    // subtle gradient fill
-    const g = ctx.createLinearGradient(center.x()-120, center.y()-60, center.x()+120, center.y()+60);
-    g.addColorStop(0,'#ffd1f0'); g.addColorStop(0.5,'#ff9fbf'); g.addColorStop(1,'#ff6b6b');
-    ctx.fillStyle = g;
-    ctx.fillText('Te amo', center.x(), center.y() + 10);
+    ctx.fillStyle='red';
+    ctx.font='80px "Segoe UI", Arial';
+    ctx.textAlign='center'; ctx.fillText('Te amo',W/2,H/2);
     ctx.restore();
+    ctx.save();
+    ctx.fillStyle='white';
+    ctx.font='32px "Segoe UI", Arial';
+    ctx.fillText('NAYELI AND BYRON FOREVER',W/2,H/2+80);
+    ctx.restore();
+    setTimeout(()=>{ repeatBtn.style.display='block'; },2000);
+    countdownStarted=false;
+    countdown=-1; // prevent repeat
   }
 
-  // draw moving text with shine
-  drawMovingText(now);
-
-  // handle timers: advance currentText based on elapsed time
-  const elapsed = now - startTime;
-  const newIndex = Math.floor(elapsed / TEXT_DURATION);
-  if(newIndex !== currentText){
-    // when arriving to final text index (last), show countdown UI
-    if(newIndex === texts.length - 1){
-      // show countdown
-      countdownBox.style.display = 'block';
-      // start from 10 (or compute dynamic)
-      countdownStartValue = 10;
-      countdownRemaining = countdownStartValue;
-      countdownShownSince = performance.now();
-      // show finalText hidden under canvas (we'll fade after countdown)
-      finalTextEl.style.opacity = 0;
-    }
-    // when we move past final text (i.e., finished), clamp
-    currentText = Math.min(newIndex, texts.length - 1);
-  }
-
-  // if countdown active, update it
-  if(countdownBox.style.display === 'block' && !explosionTriggered){
-    const nowMS = performance.now();
-    const elapsedSinceShow = (nowMS - (countdownShownSince || nowMS)) / 1000;
-    const remain = Math.max(0, Math.ceil(countdownStartValue - elapsedSinceShow));
-    countNum.textContent = remain;
-    // subtle pulse
-    countNum.style.transform = `scale(${1 + 0.06*Math.sin(now/120)})`;
-    if(remain <= 0){
-      // hide countdown, show final text then trigger explosion
-      countdownBox.style.display = 'none';
-      // fade-in finalTextEl quickly then explode
-      finalTextEl.style.transition = 'opacity 0.8s ease';
-      finalTextEl.style.opacity = 1;
-      // trigger explosion sequence
-      triggerExplosion();
-      // small delay to spawn center-dots flyout
-      setTimeout(()=> {
-        // little burst of center dots
-        for(let i=0;i<180;i++){
-          const ang = Math.random()*Math.PI*2;
-          const sp = 60 + Math.random()*160;
-          explosionParticles.push(new P(center.x(), center.y(), `hsl(${Math.random()*360},100%,60%)`, 1 + Math.random()*2.6, Math.cos(ang)*sp, Math.sin(ang)*sp, 1.6 + Math.random()*1.6));
-        }
-      }, 180);
-    }
-  }
-
-  // if explosion occurred, allow "Te amo" to grow when ashes present
-  if(explosionTriggered && ashes.length > 0 && teAmoTimer === 0.001){
-    // start increasing teAmoTimer so that the draw section shows it
-    teAmoTimer = 0.02;
-  }
-
-  lastTime = now;
   requestAnimationFrame(step);
 }
 
-/* ---------- Countdown variables (controlled when final text appears) ---------- */
-let countdownStartValue = 10;
-let countdownRemaining = 10;
-let countdownShownSince = null;
+// --- START COUNTDOWN ---
+function startCountdown(){
+  countdownStarted=true;
+  countdown=5;
+  const interval=setInterval(()=>{
+    countdown--;
+    if(countdown<=0) clearInterval(interval);
+  },1000);
+}
 
-/* ---------- Initialize ---------- */
+// --- START ANIMATION ---
 function startAnimation(){
   if(started) return;
-  started = true;
-  startTime = performance.now();
-  lastTime = startTime;
-  cover.style.display = 'none';
-  audioNotice.style.display = 'none';
-  bgMusic.play().catch(()=>{ /* ignore autoplay issues */ });
-  badge.style.display = 'inline-flex';
-
-  // spawn single central flower
-  spawnCentralFlower();
-
-  // small ambient sparkles continue to spawn slowly
-  setInterval(()=> {
-    if(!started) return;
-    for(let i=0;i<3;i++){
-      const ang = Math.random()*Math.PI*2;
-      const rad = 140 + Math.random()*140;
-      const px = center.x() + Math.cos(ang)*rad;
-      const py = center.y() + Math.sin(ang)*rad*0.6 - Math.random()*30;
-      const hue = Math.random()*360;
-      sparkles.push(new P(px,py, `hsl(${hue},90%,60%)`, 0.9 + Math.random()*1.4, (center.x()-px)*0.02, (center.y()-py)*0.02, 1.6 + Math.random()*2.6));
-    }
-  }, 1100);
-
+  started=true; currentText=0; startTime=performance.now();
+  cover.style.display='none'; bgMusic.play().catch(()=>{});
+  spawnMainFlower();
   requestAnimationFrame(step);
 }
 
-/* ---------- UI events ---------- */
-startBtn.addEventListener('click', ()=>{
-  startAnimation();
+// --- REPEAT ---
+repeatBtn.addEventListener('click',()=>{
+  sparkle=[]; centerDots=[]; leafDots=[]; rootDots=[]; smallPlants=[]; explosion=[]; hearts=[];
+  started=false; countdownStarted=false; countdown=5; turtle.visible=false; moon.visible=false;
+  repeatBtn.style.display='none';
+  cover.style.display='flex';
 });
-canvas.addEventListener('click', ()=>{ if(!started) startAnimation(); });
 
-/* pre-draw */
-(function preDraw(){ drawBackground(0); ctx.font='22px "Segoe UI"'; ctx.fillStyle='#fff'; ctx.fillText('Pulsa para iniciar la animación', W/2, H/2 + 80); })();
+// --- BUTTONS ---
+startBtn.addEventListener('click',startAnimation);
+canvas.addEventListener('click',()=>{ if(!started) startAnimation(); });
 
 </script>
 </body>
