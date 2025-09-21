@@ -1,54 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feliz 21 de Septiembre</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Amor Visual</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,sans-serif;}
-canvas{display:block;}
-#cover{
-  position:absolute; inset:0; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white; z-index:10;
-}
-#startBtn,#repeatBtn{
-  margin-top:15px; padding:12px 28px; font-size:20px; border:none; border-radius:20px;
-  background:linear-gradient(180deg,#ff77d2,#ff4b6b); color:#fff; cursor:pointer;
-}
-#repeatBtn{position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:none; z-index:30;}
+body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#050814; font-family: "Segoe UI", sans-serif;}
+canvas { display:block; width:100vw; height:100vh;}
+#ui{position:absolute; z-index:20; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;}
+.cover{pointer-events:auto;text-align:center;}
+.title{font-size:48px; font-weight:800; color:#ff77d2; background:linear-gradient(90deg,#ff77d2,#ffd700,#5ee3b3,#7fb3ff); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 8px rgba(0,0,0,0.5); animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow{from{filter:drop-shadow(0 0 6px #ff77d2);} to{filter:drop-shadow(0 0 18px #ffd700);}}
+.subtitle{font-size:20px;color:#fff;margin-bottom:18px;text-shadow:0 2px 6px rgba(0,0,0,0.7);}
+#att{font-size:16px;color:#fff;margin-top:10px;text-shadow:0 2px 6px rgba(0,0,0,0.7);}
+#startBtn{pointer-events:auto;margin-top:10px;padding:14px 30px;font-size:20px;border:none;border-radius:30px;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.45);}
+#countdown{position:absolute; top:10px; right:10px; font-size:36px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.8); display:none; z-index:25;}
+#repeatBtn{position:absolute;top:90%;left:50%;transform:translate(-50%,-50%);padding:16px 32px;font-size:24px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;display:none; z-index:30;}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<div id="cover">
-  <h1>Feliz 21 de Septiembre</h1>
-  <div>Presiona aquí 🌼</div>
-  <div>ATT: Bubu. Para: Nimosauria</div>
-  <button id="startBtn">Iniciar</button>
+<div id="ui">
+  <div class="cover" id="cover">
+    <h1 class="title">Feliz 21 de Septiembre</h1>
+    <div class="subtitle">Esto faltaba</div>
+    <button id="startBtn">Presiona aquí 🌼</button>
+    <div id="att">ATT: Bubu. Para: Nimosauria</div>
+  </div>
 </div>
+
+<div id="countdown"></div>
 <button id="repeatBtn">Repetir</button>
+<canvas id="c"></canvas>
+<audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" preload="auto"></audio>
 
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-let W = canvas.width = window.innerWidth;
-let H = canvas.height = window.innerHeight;
-window.addEventListener('resize', ()=>{ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
 
-const startBtn = document.getElementById('startBtn');
-const cover = document.getElementById('cover');
-const repeatBtn = document.getElementById('repeatBtn');
+const startBtn=document.getElementById('startBtn');
+const cover=document.getElementById('cover');
+const bgMusic=document.getElementById('bgMusic');
+const countdownEl=document.getElementById('countdown');
+const repeatBtn=document.getElementById('repeatBtn');
 
-let heartScale = 0.1; // tamaño inicial pequeño para crecer
-let currentText = 0;
-let started = false;
-let startTime = 0;
-let lastTime = 0;
-let countdownActive = false;
-let countdownValue = 5;
-let explode = false;
-let particles = [];
-let heartExplosion = 0;
+let started=false, currentText=0, startTime=null, countdown=5, countdownStarted=false, frozen=false;
 
+// Textos
 const texts=[
 "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
 "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
@@ -58,189 +57,120 @@ const texts=[
 "Y fin colorado, este amor ha comenzado..."
 ];
 
-let turtle={x:W/2,y:H/2,radius:8,visible:false};
-let moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
-let turtleTrail=[];
-let floatingHearts=[];
-
-let bgHue = 220; // color fondo azul inicial
-
-// Partículas flotantes de corazón
-function createFloatingHeart(){
-  floatingHearts.push({
-    x: W/2 + (Math.random()-0.5)*W/2,
-    y: H/2 + (Math.random()-0.5)*H/2,
-    vx: (Math.random()-0.5)*0.5,
-    vy: (Math.random()-0.5)*0.5,
-    size: 5+Math.random()*4,
-    alpha: 0.7 + Math.random()*0.3,
-    color: `hsl(${Math.random()*360},100%,70%)`
-  });
+// PARTICULAS
+class Particle{
+  constructor(x,y,dx,dy,r,color){this.x=x;this.y=y;this.dx=dx;this.dy=dy;this.r=r;this.color=color;this.alpha=1; this.scale=Math.random()*0.5+0.5; this.inc=Math.random()*0.02+0.01;}
+  step(dt){this.x+=this.dx*dt; this.y+=this.dy*dt; this.alpha-=0.002; if(this.alpha<0)this.alpha=0; this.scale+=Math.sin(this.inc)*0.05; this.inc+=0.02;}
+  draw(){ctx.globalAlpha=this.alpha; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,this.r*this.scale,0,Math.PI*2); ctx.shadowColor=this.color; ctx.shadowBlur=10; ctx.fill(); ctx.globalAlpha=1;}
 }
 
-// Dibuja un corazón
-function drawHeart(scale,time){
-  let pulse = 0.02*Math.sin(time/200) + heartExplosion;
-  for(let t=0;t<360;t+=2){
-    let angle = t*Math.PI/180;
-    let x = W/2 + (16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
-    let y = H/2 - (13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*(scale+pulse)*H/16;
-    ctx.fillStyle = `hsl(${bgHue+Math.random()*40},100%,70%)`;
-    ctx.beginPath();
-    ctx.arc(x,y,2+Math.sin(time/200)*2,0,Math.PI*2);
-    ctx.fill();
-  }
-}
+let particles=[], hearts=[];
+function spawnHeart(x,y,size,color){hearts.push(new Particle(x,y,(Math.random()*2-1),(Math.random()*-1-0.5),size,color));}
+function spawnParticle(x,y,size,color){particles.push(new Particle(x,y,(Math.random()-0.5)*1,(Math.random()-0.5)*1,size,color));}
 
-// Corazones flotantes alrededor
-function drawFloatingHearts(){
-  floatingHearts.forEach(f=>{
-    ctx.fillStyle=f.color;
-    ctx.globalAlpha=f.alpha;
-    ctx.beginPath();
-    let angle = Math.PI/4;
-    let x = f.x + Math.sin(Date.now()/1000)*2;
-    let y = f.y + Math.cos(Date.now()/1000)*2;
-    ctx.arc(x,y,f.size,0,Math.PI*2);
-    ctx.fill();
-    f.x += f.vx; f.y += f.vy; f.alpha *=0.995;
-  });
-  floatingHearts = floatingHearts.filter(f=>f.alpha>0.05);
-  ctx.globalAlpha=1;
-}
+let turtle={x:0,y:0,radius:8,visible:false, name:"Tortuga"};
+let moon={x:null,y:null,r:24,visible:false,arrived:false};
 
-function drawTurtleTrail(){
-  turtleTrail.forEach(p=>{
-    ctx.fillStyle=p.color;
-    ctx.globalAlpha = p.alpha;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-    ctx.fill();
-    p.radius*=0.95;
-    p.alpha*=0.92;
-  });
-  turtleTrail = turtleTrail.filter(p=>p.radius>0.5);
-  ctx.globalAlpha=1;
-}
-
-function explodeParticles(){
-  particles.forEach(p=>{
-    ctx.fillStyle=p.color;
-    ctx.globalAlpha=p.alpha;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-    ctx.fill();
-    p.x += p.vx; p.y += p.vy;
-    p.radius *= 0.95; p.alpha *= 0.92;
-  });
-  particles = particles.filter(p=>p.alpha>0.05);
-  ctx.globalAlpha=1;
-}
-
-function createExplosion(){
-  for(let i=0;i<300;i++){
-    let angle = Math.random()*2*Math.PI;
-    let speed = 2+Math.random()*6;
-    particles.push({
-      x:W/2,
-      y:H/2,
-      vx: Math.cos(angle)*speed,
-      vy: Math.sin(angle)*speed,
-      radius:3+Math.random()*4,
-      alpha:1,
-      color: `hsl(${Math.random()*360},100%,70%)`
-    });
-  }
-  explode=true;
-}
-
+let heartScale=0.1;
+let lastTime=performance.now();
 function step(now){
-  const dt = Math.min(0.033,(now-lastTime)/1000);
-  lastTime = now;
+  let dt=Math.min(0.033,(now-lastTime)/16);
+  lastTime=now;
 
-  // Fondo gradiente animado
-  bgHue += 0.2;
-  ctx.fillStyle = `hsl(${bgHue},60%,10%)`;
-  ctx.fillRect(0,0,W,H);
+  // fondo corazón pulsante
+  ctx.clearRect(0,0,W,H);
+  heartScale+=0.002;
+  for(let t=0;t<360;t+=4){
+    let angle=(t*Math.PI/180);
+    let x=W/2+16*heartScale*Math.pow(Math.sin(angle),3)*W/4;
+    let y=H/2-(13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*heartScale*H/16;
+    ctx.fillStyle="#ff4b6b";
+    ctx.beginPath();
+    let pulse=2+Math.sin(now/200)*2;
+    ctx.arc(x,y,pulse,0,Math.PI*2);
+    ctx.shadowColor="#ff77d2"; ctx.shadowBlur=15;
+    ctx.fill();
+  }
 
-  // Corazón crece progresivamente
-  heartScale += 0.003 + 0.002*Math.sin(now/1000);
-  drawHeart(heartScale,now);
+  // partículas flotantes de fondo
+  if(Math.random()<0.5) spawnParticle(Math.random()*W,Math.random()*H,2,'#fff');
 
-  // Genera corazones flotantes
-  if(Math.random()<0.05) createFloatingHeart();
-  drawFloatingHearts();
+  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt); particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
+  for(let i=hearts.length-1;i>=0;i--){hearts[i].step(dt); hearts[i].draw(); if(hearts[i].alpha<=0)hearts.splice(i,1);}
 
-  // Texto
-  ctx.fillStyle = "#fff"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="700 26px 'Segoe UI'";
-  if(currentText<texts.length) ctx.fillText(texts[currentText],W/2,H*0.1+Math.sin(now/500)*8);
+  // dibujar texto
+  ctx.save(); ctx.font='700 28px "Segoe UI"'; ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(currentText<texts.length)ctx.fillText(texts[currentText],W/2,H*0.15);
+  ctx.restore();
 
-  // Tortuga y luna
-  if(currentText===4 && !turtle.visible){ turtle.visible=true; moon.visible=true; }
-  if(turtle.visible){
+  // texto 5 tortuga
+  if(currentText===4){
+    if(!turtle.visible){
+      turtle.visible=true; turtle.x=W/2; turtle.y=H/2; moon.x=W*0.85; moon.y=H*0.2; moon.visible=true;
+    }
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>5){ 
-      turtle.x += dx*0.02; 
-      turtle.y += dy*0.02; 
-      turtleTrail.push({
-        x:turtle.x,
-        y:turtle.y,
-        radius:4+Math.random()*3,
-        alpha:0.8,
-        color:['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)]
-      }); 
-    }
-    drawTurtleTrail();
-    ctx.fillStyle="#2ecc71"; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.radius,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle="#fff"; ctx.font="14px 'Segoe UI'"; ctx.fillText("Tortuga",turtle.x-20,turtle.y-20);
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.radius,0,Math.PI*2); ctx.fill();
+    if(dist>2){turtle.x+=dx*0.01; turtle.y+=dy*0.01;}
+    ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='white'; ctx.font='16px "Segoe UI"'; ctx.fillText(turtle.name,turtle.x+20,turtle.y-10); ctx.restore();
+    ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
 
-  if(started && !countdownActive){
-    let elapsed = now-startTime;
-    let newIndex = Math.floor(elapsed/10000);
-    if(newIndex!==currentText) currentText = Math.min(newIndex,texts.length);
-    if(currentText===texts.length && !countdownActive){ 
-      countdownActive=true; 
-      countdownValue=5; 
-      let interval=setInterval(()=>{
-        countdownValue--; 
-        if(countdownValue<=0){ clearInterval(interval); createExplosion(); } 
-      },1000);
+  // cuenta regresiva
+  if(countdownStarted){
+    countdownEl.style.display='block';
+    countdownEl.textContent=countdown;
+    for(let i=0;i<2;i++){ spawnHeart(Math.random()*W,Math.random()*H,3+Math.random()*3,'#ff4b6b'); spawnParticle(Math.random()*W,Math.random()*H,2+Math.random()*2,'#fff'); }
+  }else countdownEl.style.display='none';
+
+  // avance de textos
+  if(started && !countdownStarted && !frozen){
+    let elapsed=now-startTime;
+    let newIndex=Math.floor(elapsed/5000);
+    if(newIndex!==currentText){
+      currentText=Math.min(newIndex,texts.length);
+      if(currentText===texts.length){ startCountdown(); }
     }
   }
 
-  if(countdownActive && countdownValue>0){
-    ctx.fillStyle="#ffd700"; ctx.font="700 48px 'Segoe UI'"; ctx.fillText(countdownValue,W/2,H*0.85);
-  }
-
-  if(countdownActive && countdownValue<=0){
-    if(explode) explodeParticles();
-    drawHeart(heartScale,now);
-    drawFloatingHearts();
-    ctx.fillStyle="#ff77d2"; ctx.font="900 48px 'Segoe UI'"; ctx.fillText("Te amo. No son rosas pero es algo mucho más hermoso",W/2,H*0.6);
-    ctx.font="700 36px 'Segoe UI'"; ctx.fillText("Byron and Nayeli Forever",W/2,H*0.7);
-    repeatBtn.style.display="block";
-    return; // congelado
+  // congelar y mostrar final
+  if(frozen){
+    ctx.save();
+    ctx.font='50px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2);
+    ctx.font='36px "Segoe UI"'; ctx.fillStyle='white'; ctx.fillText('Byron and Nayeli Forever',W/2,H/2+60);
+    ctx.restore();
+    repeatBtn.style.display='block';
   }
 
   requestAnimationFrame(step);
 }
 
-startBtn.addEventListener('click',()=>{
+// iniciar animacion
+function startAnimation(){
   if(started) return;
-  started=true; startTime=performance.now(); lastTime=startTime;
-  cover.style.display="none";
+  started=true; currentText=0; startTime=performance.now();
+  cover.style.display='none';
+  bgMusic.play().catch(()=>{});
   requestAnimationFrame(step);
-});
+}
+
+// iniciar cuenta regresiva
+function startCountdown(){
+  countdownStarted=true;
+  countdown=5;
+  const interval=setInterval(()=>{
+    countdown--;
+    if(countdown<=0){ clearInterval(interval); countdownStarted=false; frozen=true; }
+  },1000);
+}
+
+startBtn.addEventListener('click',startAnimation);
+canvas.addEventListener('click',()=>{ if(!started) startAnimation(); });
 
 repeatBtn.addEventListener('click',()=>{
-  repeatBtn.style.display="none";
-  heartScale=0.1; currentText=0; countdownActive=false; explode=false; heartExplosion=0; particles=[]; floatingHearts=[];
-  turtle={x:W/2,y:H/2,radius:8,visible:false};
-  moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
-  turtleTrail=[]; startTime=performance.now();
-  requestAnimationFrame(step);
+  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5; frozen=false;
+  turtle.visible=false; moon.visible=false; repeatBtn.style.display='none';
+  heartScale=0.1;
+  cover.style.display='flex';
 });
 </script>
 </body>
