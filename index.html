@@ -1,104 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Feliz 21 de Septiembre — Animación</title>
+<title>Amor Visual</title>
 <style>
-  :root{
-    --accent1:#ffd700;
-    --accent2:#ff6b6b;
-    --text-gray:#ddd;
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    background:#050814;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    overflow:hidden;
-  }
-  canvas { display:block; width:100vw; height:100vh; }
-  #ui {
-    position:absolute;
-    z-index:20;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    pointer-events:none;
-    flex-direction: column;
-  }
-  .cover { pointer-events:auto; text-align:center; }
-  .title {
-    font-size:48px;
-    line-height:1;
-    margin:0 0 6px 0;
-    padding:6px 12px;
-    display:inline-block;
-    color: #ff77d2;
-    letter-spacing:1px;
-    font-weight:800;
-    text-transform:none;
-    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
-    background: linear-gradient(90deg, #ff77d2, #ffd700, #5ee3b3, #7fb3ff);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-  .subtitle {
-    font-size:20px;
-    color:var(--accent2);
-    display:block;
-    margin-bottom:18px;
-    text-shadow:0 2px 8px rgba(0,0,0,0.6);
-  }
-  @keyframes glow{
-    from { filter: drop-shadow(0 0 6px rgba(255,120,200,0.6)) saturate(1.1) blur(0px); transform:translateY(-2px) rotate(-0.5deg); }
-    to   { filter: drop-shadow(0 0 18px rgba(255,220,50,0.95)) saturate(1.4) blur(0px); transform:translateY(2px) rotate(0.5deg); }
-  }
-  #startBtn{
-    pointer-events:auto;
-    margin-top:10px;
-    background:linear-gradient(180deg,#fff176,#ffb300);
-    border:0;
-    padding:14px 30px;
-    border-radius:30px;
-    font-size:20px;
-    cursor:pointer;
-    box-shadow:0 8px 30px rgba(0,0,0,0.45);
-    transition:transform .15s ease;
-  }
-  #startBtn:active{ transform:scale(.98) }
-  #countdown{
-    position:absolute;
-    top:10px;
-    right:10px;
-    font-size:36px;
-    color:#fff;
-    text-shadow:0 2px 6px rgba(0,0,0,0.8);
-    z-index:25;
-    display:none;
-  }
-  #repeatBtn{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    padding:16px 32px;
-    font-size:24px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    background:linear-gradient(180deg,#ff6b6b,#ff77d2);
-    color:white;
-    display:none;
-    z-index:30;
-  }
+body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#050814; font-family: "Segoe UI", sans-serif;}
+canvas { display:block; width:100vw; height:100vh;}
+#ui{position:absolute; z-index:20; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;}
+.cover{pointer-events:auto;text-align:center;}
+.title{font-size:48px; font-weight:800; color:#ff77d2; background:linear-gradient(90deg,#ff77d2,#ffd700,#5ee3b3,#7fb3ff); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 8px rgba(0,0,0,0.5); animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow{from{filter:drop-shadow(0 0 6px #ff77d2);} to{filter:drop-shadow(0 0 18px #ffd700);}}
+.subtitle{font-size:20px;color:#fff;margin-bottom:18px;text-shadow:0 2px 6px rgba(0,0,0,0.7);}
+#startBtn{pointer-events:auto;margin-top:10px;padding:14px 30px;font-size:20px;border:none;border-radius:30px;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.45);}
+#countdown{position:absolute; top:10px; right:10px; font-size:36px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.8); display:none; z-index:25;}
+#repeatBtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:16px 32px;font-size:24px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#ff6b6b,#ff77d2);color:white;display:none; z-index:30;}
 </style>
 </head>
 <body>
-
 <div id="ui">
   <div class="cover" id="cover">
     <h1 class="title">Feliz 21 de Septiembre</h1>
@@ -109,199 +28,133 @@
 
 <div id="countdown"></div>
 <button id="repeatBtn">Repetir</button>
-
-<audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" preload="auto"></audio>
 <canvas id="c"></canvas>
+<audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" preload="auto"></audio>
 
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d', { alpha:false });
-let W = canvas.width = innerWidth;
-let H = canvas.height = innerHeight;
-window.addEventListener('resize', ()=>{ W=canvas.width=innerWidth; H=canvas.height=innerHeight; });
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
 
-const startBtn = document.getElementById('startBtn');
-const cover = document.getElementById('cover');
-const bgMusic = document.getElementById('bgMusic');
-const countdownEl = document.getElementById('countdown');
-const repeatBtn = document.getElementById('repeatBtn');
+const startBtn=document.getElementById('startBtn');
+const cover=document.getElementById('cover');
+const bgMusic=document.getElementById('bgMusic');
+const countdownEl=document.getElementById('countdown');
+const repeatBtn=document.getElementById('repeatBtn');
 
-class P {
-  constructor(x,y,color,size,vx,vy,life=Infinity){
-    this.x=x; this.y=y; this.color=color; this.size=size; this.vx=vx; this.vy=vy;
-    this.life=life; this.age=0; this.alpha=1;
+let started=false, currentText=0, startTime=null, countdown=5, countdownStarted=false;
+
+// Textos
+const texts=[
+"Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
+"En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
+"“Si hago cosas no es para que me quieras, sino para que veas que te quiero” Mario Benedetti",
+"Si no es eterno, que sea inolvidable",
+"Te amo de aquí a la Luna, a pasitos de tortuga.",
+"Y fin colorado, este amor ha comenzado..."
+];
+
+// PARTICULAS
+class Particle{
+  constructor(x,y,dx,dy,r,color){
+    this.x=x; this.y=y; this.dx=dx; this.dy=dy; this.r=r; this.color=color; this.alpha=1;
   }
   step(dt){
-    this.age += dt;
-    this.x += this.vx*dt;
-    this.y += this.vy*dt;
-    if(this.age>this.life) this.alpha=Math.max(0,1-(this.age-this.life)/1.5);
+    this.x+=this.dx*dt; this.y+=this.dy*dt; this.alpha-=0.005; if(this.alpha<0)this.alpha=0;
   }
   draw(){
     ctx.globalAlpha=this.alpha;
     ctx.fillStyle=this.color;
     ctx.beginPath();
-    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
     ctx.fill();
     ctx.globalAlpha=1;
   }
 }
 
-// --- SYSTEM ARRAYS ---
-let sparkle=[],centerDots=[],leafDots=[],rootDots=[],smallPlants=[],explosion=[],hearts=[];
-let texts=[
-  "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
-  "En tus ojos, veo el sol; en tu cabello el amor; en tu cuerpo, el valor; y en tu sonrisa, la perfección",
-  "“Si hago cosas no es para que me quieras, sino para que veas que te quiero” Mario Benedetti",
-  "Si no es eterno, que sea inolvidable",
-  "Te amo de aquí a la Luna, a pasitos de tortuga.",
-  "Y fin colorado, este amor ha comenzado..."
-];
-let currentText=0, startTime=null, started=false;
-let turtle={x:0,y:0,radius:6,visible:false},moon={x:null,y:null,r:24,visible:false,arrived:false};
-let countdown=5, countdownStarted=false;
+let particles=[], hearts=[];
+function spawnHeart(x,y,size,color){ hearts.push(new Particle(x,y,Math.random()*2-1,Math.random()*-1-0.5,size,color)); }
+function spawnParticle(x,y,size,color){ particles.push(new Particle(x,y,(Math.random()-0.5)*4,(Math.random()-0.5)*4,size,color)); }
 
-// flower center
-const flowerX=()=>W/2;
-const flowerY=()=>H*0.66;
+let turtle={x:0,y:0,radius:8,visible:false, name:"Tortuga"};
+let moon={x:null,y:null,r:24,visible:false,arrived:false};
 
-// --- SPAWN MAIN FLOWER ---
-function spawnMainFlower(){
-  rootDots=[]; leafDots=[]; centerDots=[];
-  for(let i=0;i<400;i++){
-    const px=flowerX()+(Math.random()-0.5)*120;
-    const py=flowerY()+30+Math.random()*80;
-    rootDots.push(new P(px,py,'#6b3b1a',2,(Math.random()-0.5)*6,-10-Math.random()*40,1.5+Math.random()*2));
-  }
-  for(let i=0;i<700;i++){
-    const px=flowerX()+(Math.random()-0.5)*260;
-    const py=flowerY()-(Math.random()*160);
-    leafDots.push(new P(px,py,`hsl(${120+Math.random()*40},60%,${30+Math.random()*20}%)`,2+Math.random()*2,(Math.random()-0.5)*1.2,(Math.random()-0.15)*0.2,2+Math.random()*3));
-  }
-  for(let i=0;i<1500;i++){
-    const ang=Math.random()*Math.PI*2;
-    const r=Math.sqrt(Math.random())*50;
-    const px=flowerX()+Math.cos(ang)*r;
-    const py=flowerY()-Math.sin(ang)*r*0.7;
-    const hue=40+Math.random()*30;
-    centerDots.push(new P(px,py,`hsl(${hue},95%,${45+Math.random()*12}%)`,1+Math.random()*1.8,(Math.random()-0.5)*0.3,(Math.random()-0.5)*0.3,3+Math.random()*3));
-  }
-}
-
-// --- DRAW BACKGROUND ---
-function drawBackground(frame){
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#001633');
-  g.addColorStop(0.4,'#052a63');
-  g.addColorStop(1,'#08223a');
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,W,H);
-  // stars
-  ctx.save();
-  for(let i=0;i<100;i++){
-    const sx=(i*73 % W)+(Math.sin((frame+i*11)/50)*6);
-    const sy=(i*41 % (H*0.45))+(Math.cos((frame+i*9)/40)*6);
-    const s=0.5+((i%7)/7)*2;
-    ctx.globalAlpha=0.3+Math.abs(Math.sin((frame+i)/100))*0.6;
-    ctx.fillStyle=`hsl(${50+(i%10)},90%,${70-(i%4)*10}%)`;
-    ctx.beginPath();
-    ctx.arc(sx,sy,s,0,Math.PI*2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-// --- DRAW PARTICLES ---
-function drawParticles(list){ for(let i=list.length-1;i>=0;i--){ const p=list[i]; p.draw(); if(p.alpha<=0.01) list.splice(i,1);} }
-
-// --- SPAWN SPARKLES ---
-function spawnSparkleBurst(n=1){
-  for(let i=0;i<n;i++){
-    const ang=Math.random()*Math.PI*2;
-    const rad=40+Math.random()*260;
-    const px=flowerX()+Math.cos(ang)*rad;
-    const py=flowerY()-Math.sin(ang)*rad*0.6-Math.random()*30;
-    const hue=40+Math.random()*40;
-    const vx=(flowerX()-px)*(0.04+Math.random()*0.04);
-    const vy=(flowerY()-py)*(0.04+Math.random()*0.04)-(Math.random()*0.2);
-    sparkle.push(new P(px,py,`hsl(${hue},100%,60%)`,0.9+Math.random()*1.6,vx,vy,0.6+Math.random()*2.0));
-  }
-}
-
-// --- MAIN STEP ---
 let lastTime=performance.now();
 function step(now){
-  const dt=Math.min(0.033,(now-lastTime)/1000);
+  let dt=Math.min(0.033,(now-lastTime)/16);
   lastTime=now;
-  drawBackground(now/16);
-  if(started){
-    spawnSparkleBurst(1);
-    [sparkle,centerDots,leafDots,rootDots].forEach(arr=>arr.forEach(p=>p.step(dt)));
-    smallPlants.forEach(arr=>arr.forEach(p=>p.step(dt)));
-    hearts.forEach(h=>{h.step(dt); if(h.alpha<=0.01) hearts.splice(hearts.indexOf(h),1)});
-  }
-  // draw layers
-  ctx.save(); ctx.globalCompositeOperation='lighter';
-  drawParticles(rootDots); drawParticles(leafDots); drawParticles(centerDots); drawParticles(sparkle);
-  smallPlants.forEach(arr=>arr.forEach(p=>p.draw()));
-  hearts.forEach(h=>h.draw());
+
+  // fondo degradado
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#15001a'); g.addColorStop(1,'#050814');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  // dibujar particulas
+  for(let i=particles.length-1;i>=0;i--){particles[i].step(dt); particles[i].draw(); if(particles[i].alpha<=0)particles.splice(i,1);}
+  for(let i=hearts.length-1;i>=0;i--){hearts[i].step(dt); hearts[i].draw(); if(hearts[i].alpha<=0)hearts.splice(i,1);}
+
+  // dibujar texto
+  ctx.save(); ctx.font='700 28px "Segoe UI"'; ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(currentText<texts.length)ctx.fillText(texts[currentText],W/2,H*0.15);
   ctx.restore();
 
-  // draw text
-  ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.font='700 26px "Segoe UI", Arial';
-  if(currentText<texts.length){
-    ctx.fillStyle='#f3f3f3';
-    ctx.fillText(texts[currentText],W/2,H*0.15);
-  }
-  ctx.restore();
-
-  // special tortuga/luna
-  if(currentText===4){ // fifth text
-    if(!turtle.visible){ turtle.x=W/2; turtle.y=H*0.15; turtle.visible=true; moon.x=W*0.9; moon.y=H*0.15; moon.visible=true; }
-    const dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
-    if(dist>2){ turtle.x+=dx*0.01; turtle.y+=dy*0.01; }
-    ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,6,0,Math.PI*2); ctx.fill(); ctx.restore();
-    ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,24,0,Math.PI*2); ctx.fill(); ctx.restore();
+  // texto 5 tortuga
+  if(currentText===4){
+    if(!turtle.visible){
+      turtle.visible=true; turtle.x=W/2; turtle.y=H/2; moon.x=W*0.85; moon.y=H*0.2; moon.visible=true;
+    }
+    // mover tortuga
+    let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
+    if(dist>2){turtle.x+=dx*0.01; turtle.y+=dy*0.01;}
+    // dibujar tortuga
+    ctx.save(); ctx.fillStyle='green'; ctx.beginPath(); ctx.arc(turtle.x,turtle.y,turtle.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='white'; ctx.font='16px "Segoe UI"'; ctx.fillText(turtle.name,turtle.x+20,turtle.y-10); ctx.restore();
+    // dibujar luna
+    ctx.save(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
 
-  // advance text timing
+  // generar corazones y partículas si cuenta regresiva
+  if(countdownStarted){
+    countdownEl.style.display='block';
+    countdownEl.textContent=countdown;
+    for(let i=0;i<2;i++){ spawnHeart(Math.random()*W,Math.random()*H,3+Math.random()*3,'#ff4b6b'); spawnParticle(Math.random()*W,Math.random()*H,2+Math.random()*2,'#fff'); }
+  }else countdownEl.style.display='none';
+
+  // avance de textos
   if(started && !countdownStarted){
-    const elapsed=(now-startTime);
-    const newIndex=Math.floor(elapsed/5000); // cada texto 5s
+    let elapsed=now-startTime;
+    let newIndex=Math.floor(elapsed/5000);
     if(newIndex!==currentText){
       currentText=Math.min(newIndex,texts.length);
       if(currentText===texts.length){ startCountdown(); }
     }
   }
 
-  // countdown
-  if(countdownStarted){
-    countdownEl.style.display='block';
-    countdownEl.textContent=countdown;
-  }else{ countdownEl.style.display='none'; }
-
-  // explosion at zero
+  // explosion final
   if(countdown===0){
     ctx.save();
-    ctx.fillStyle='red';
-    ctx.font='80px "Segoe UI", Arial';
-    ctx.textAlign='center'; ctx.fillText('Te amo',W/2,H/2);
+    ctx.font='60px "Segoe UI"'; ctx.fillStyle='red'; ctx.textAlign='center'; ctx.fillText('Te amo. No son Rosas pero es algo mucho más hermoso',W/2,H/2);
+    ctx.font='36px "Segoe UI"'; ctx.fillStyle='white'; ctx.fillText('Byron and Nayeli Forever',W/2,H/2+60);
     ctx.restore();
-    ctx.save();
-    ctx.fillStyle='white';
-    ctx.font='32px "Segoe UI", Arial';
-    ctx.fillText('NAYELI AND BYRON FOREVER',W/2,H/2+80);
-    ctx.restore();
-    setTimeout(()=>{ repeatBtn.style.display='block'; },2000);
+    repeatBtn.style.display='block';
     countdownStarted=false;
-    countdown=-1; // prevent repeat
+    countdown=-1;
   }
 
   requestAnimationFrame(step);
 }
 
-// --- START COUNTDOWN ---
+// iniciar animacion
+function startAnimation(){
+  if(started) return;
+  started=true; currentText=0; startTime=performance.now();
+  cover.style.display='none';
+  bgMusic.play().catch(()=>{});
+  requestAnimationFrame(step);
+}
+
+// iniciar cuenta regresiva
 function startCountdown(){
   countdownStarted=true;
   countdown=5;
@@ -311,27 +164,16 @@ function startCountdown(){
   },1000);
 }
 
-// --- START ANIMATION ---
-function startAnimation(){
-  if(started) return;
-  started=true; currentText=0; startTime=performance.now();
-  cover.style.display='none'; bgMusic.play().catch(()=>{});
-  spawnMainFlower();
-  requestAnimationFrame(step);
-}
-
-// --- REPEAT ---
-repeatBtn.addEventListener('click',()=>{
-  sparkle=[]; centerDots=[]; leafDots=[]; rootDots=[]; smallPlants=[]; explosion=[]; hearts=[];
-  started=false; countdownStarted=false; countdown=5; turtle.visible=false; moon.visible=false;
-  repeatBtn.style.display='none';
-  cover.style.display='flex';
-});
-
-// --- BUTTONS ---
+// boton iniciar
 startBtn.addEventListener('click',startAnimation);
 canvas.addEventListener('click',()=>{ if(!started) startAnimation(); });
 
+// boton repetir
+repeatBtn.addEventListener('click',()=>{
+  particles=[]; hearts=[]; started=false; countdownStarted=false; countdown=5;
+  turtle.visible=false; moon.visible=false; repeatBtn.style.display='none';
+  cover.style.display='flex';
+});
 </script>
 </body>
 </html>
