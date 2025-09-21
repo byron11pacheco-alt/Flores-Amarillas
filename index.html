@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feliz 21 de Septiembre</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#050814;font-family:Segoe UI,sans-serif;}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,sans-serif;}
 canvas{display:block;}
 #cover{
   position:absolute; inset:0; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white; z-index:10;
@@ -38,7 +38,7 @@ const startBtn = document.getElementById('startBtn');
 const cover = document.getElementById('cover');
 const repeatBtn = document.getElementById('repeatBtn');
 
-let heartScale = 0.4;
+let heartScale = 0.1; // tamaño inicial pequeño para crecer
 let currentText = 0;
 let started = false;
 let startTime = 0;
@@ -47,7 +47,7 @@ let countdownActive = false;
 let countdownValue = 5;
 let explode = false;
 let particles = [];
-let heartExplosion = 0; // efecto de explosión
+let heartExplosion = 0;
 
 const texts=[
 "Si los astronautas te vieran, no necesitarían salir de la tierra para explorar la grandeza",
@@ -61,18 +61,52 @@ const texts=[
 let turtle={x:W/2,y:H/2,radius:8,visible:false};
 let moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
 let turtleTrail=[];
+let floatingHearts=[];
 
+let bgHue = 220; // color fondo azul inicial
+
+// Partículas flotantes de corazón
+function createFloatingHeart(){
+  floatingHearts.push({
+    x: W/2 + (Math.random()-0.5)*W/2,
+    y: H/2 + (Math.random()-0.5)*H/2,
+    vx: (Math.random()-0.5)*0.5,
+    vy: (Math.random()-0.5)*0.5,
+    size: 5+Math.random()*4,
+    alpha: 0.7 + Math.random()*0.3,
+    color: `hsl(${Math.random()*360},100%,70%)`
+  });
+}
+
+// Dibuja un corazón
 function drawHeart(scale,time){
-  let pulse = 0.05*Math.sin(time/300) + heartExplosion;
+  let pulse = 0.02*Math.sin(time/200) + heartExplosion;
   for(let t=0;t<360;t+=2){
     let angle = t*Math.PI/180;
     let x = W/2 + (16*Math.pow(Math.sin(angle),3))*(scale+pulse)*W/4;
     let y = H/2 - (13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle))*(scale+pulse)*H/16;
-    ctx.fillStyle = ['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)];
+    ctx.fillStyle = `hsl(${bgHue+Math.random()*40},100%,70%)`;
     ctx.beginPath();
     ctx.arc(x,y,2+Math.sin(time/200)*2,0,Math.PI*2);
     ctx.fill();
   }
+}
+
+// Corazones flotantes alrededor
+function drawFloatingHearts(){
+  floatingHearts.forEach(f=>{
+    ctx.fillStyle=f.color;
+    ctx.globalAlpha=f.alpha;
+    ctx.beginPath();
+    let angle = Math.PI/4;
+    let x = f.x + Math.sin(Date.now()/1000)*2;
+    let y = f.y + Math.cos(Date.now()/1000)*2;
+    ctx.arc(x,y,f.size,0,Math.PI*2);
+    ctx.fill();
+    f.x += f.vx; f.y += f.vy; f.alpha *=0.995;
+  });
+  floatingHearts = floatingHearts.filter(f=>f.alpha>0.05);
+  ctx.globalAlpha=1;
 }
 
 function drawTurtleTrail(){
@@ -104,17 +138,17 @@ function explodeParticles(){
 }
 
 function createExplosion(){
-  for(let i=0;i<200;i++){
+  for(let i=0;i<300;i++){
     let angle = Math.random()*2*Math.PI;
-    let speed = 2+Math.random()*5;
+    let speed = 2+Math.random()*6;
     particles.push({
       x:W/2,
       y:H/2,
       vx: Math.cos(angle)*speed,
       vy: Math.sin(angle)*speed,
-      radius:3+Math.random()*3,
+      radius:3+Math.random()*4,
       alpha:1,
-      color: ['#ff4b6b','#ff77d2','#ffd700','#ffffff'][Math.floor(Math.random()*4)]
+      color: `hsl(${Math.random()*360},100%,70%)`
     });
   }
   explode=true;
@@ -123,21 +157,25 @@ function createExplosion(){
 function step(now){
   const dt = Math.min(0.033,(now-lastTime)/1000);
   lastTime = now;
-  ctx.clearRect(0,0,W,H);
 
-  // Zoom suave del corazón
+  // Fondo gradiente animado
+  bgHue += 0.2;
+  ctx.fillStyle = `hsl(${bgHue},60%,10%)`;
+  ctx.fillRect(0,0,W,H);
+
+  // Corazón crece progresivamente
   heartScale += 0.003 + 0.002*Math.sin(now/1000);
-
-  // Si explode, aumenta el efecto de expansión
-  if(explode && heartExplosion<0.5) heartExplosion +=0.01;
-
   drawHeart(heartScale,now);
+
+  // Genera corazones flotantes
+  if(Math.random()<0.05) createFloatingHeart();
+  drawFloatingHearts();
 
   // Texto
   ctx.fillStyle = "#fff"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="700 26px 'Segoe UI'";
   if(currentText<texts.length) ctx.fillText(texts[currentText],W/2,H*0.1+Math.sin(now/500)*8);
 
-  // Tortuga
+  // Tortuga y luna
   if(currentText===4 && !turtle.visible){ turtle.visible=true; moon.visible=true; }
   if(turtle.visible){
     let dx=moon.x-turtle.x, dy=moon.y-turtle.y, dist=Math.hypot(dx,dy);
@@ -178,7 +216,8 @@ function step(now){
 
   if(countdownActive && countdownValue<=0){
     if(explode) explodeParticles();
-    drawHeart(heartScale,now); // corazón explota visualmente
+    drawHeart(heartScale,now);
+    drawFloatingHearts();
     ctx.fillStyle="#ff77d2"; ctx.font="900 48px 'Segoe UI'"; ctx.fillText("Te amo. No son rosas pero es algo mucho más hermoso",W/2,H*0.6);
     ctx.font="700 36px 'Segoe UI'"; ctx.fillText("Byron and Nayeli Forever",W/2,H*0.7);
     repeatBtn.style.display="block";
@@ -197,7 +236,7 @@ startBtn.addEventListener('click',()=>{
 
 repeatBtn.addEventListener('click',()=>{
   repeatBtn.style.display="none";
-  heartScale=0.4; currentText=0; countdownActive=false; explode=false; heartExplosion=0; particles=[];
+  heartScale=0.1; currentText=0; countdownActive=false; explode=false; heartExplosion=0; particles=[]; floatingHearts=[];
   turtle={x:W/2,y:H/2,radius:8,visible:false};
   moon={x:W*0.85,y:H*0.2,radius:36,visible:false};
   turtleTrail=[]; startTime=performance.now();
